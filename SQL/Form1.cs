@@ -59,7 +59,7 @@ namespace SQL
                 int i = 0, j = 0;
 
                 FbTransaction fbt = fb.BeginTransaction();
-                FbCommand SelectSQL = new FbCommand("Select lname||' '||fname||' '||sname, peopleid  FROM people", fb); //задаем запрос на выборку
+                FbCommand SelectSQL = new FbCommand("SELECT people.lname||' '||people.fname||' '||people.sname, people.peopleid,cards.cardnum FROM cards INNER JOIN people ON(people.peopleid = CARDS.peopleid)", fb); //задаем запрос на выборку
                 SelectSQL.Transaction = fbt;
                 FbDataReader reader = SelectSQL.ExecuteReader();
                 string select_result = "";
@@ -76,8 +76,10 @@ namespace SQL
                         arr_user.Add(row);
                         arr_user[i].Add("");
                         arr_user[i].Add("");
+                        arr_user[i].Add("");
                         arr_user [i][j]= reader.GetString(0).ToString();
                         arr_user[i][j+1] = reader.GetString(1).ToString();
+                        arr_user[i][j + 2] = reader.GetString(2).ToString();
                         i++;
                     }
                 }
@@ -91,10 +93,10 @@ namespace SQL
 
 
                 dataGridView1.RowCount = arr_user.Count;
-                dataGridView1.ColumnCount = 2;
+                dataGridView1.ColumnCount = 3;
                 for (int ii=0;ii<arr_user.Count;ii++)
                 {
-                    for (int jj=0;jj<2;jj++)
+                    for (int jj=0;jj<3;jj++)
                     {
                         dataGridView1.Rows[ii].Cells[jj].Value = String.Format("{0}",arr_user[ii][jj]);
                     }
