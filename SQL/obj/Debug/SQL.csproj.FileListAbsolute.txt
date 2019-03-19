@@ -1,0 +1,12 @@
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\bin\Debug\SQL.exe.config
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\bin\Debug\SQL.exe
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\bin\Debug\SQL.pdb
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\bin\Debug\FirebirdSql.Data.FirebirdClient.dll
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.csprojAssemblyReference.cache
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.Form1.resources
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.Properties.Resources.resources
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.csproj.GenerateResource.cache
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.csproj.CoreCompileInputs.cache
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.csproj.CopyComplete
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.exe
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.pdb
