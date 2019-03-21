@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using FirebirdSql.Data.FirebirdClient;
 using System.Collections;
 using System.IO;
-using Excel = Microsoft.Office.Interop.Excel
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace SQL
 {
@@ -19,6 +19,12 @@ namespace SQL
 
         //описание переменных
         FbConnection fb;
+        public Excel.Application excelapp;
+        public Excel.Worksheet excelworksheet;
+        public Excel.Workbooks excelappworkbooks;
+        public Excel.Workbook excelappworkbook;
+        public Excel.Sheets excelsheets;
+        public Excel.Range excelcells;
         List<List<string>> arr_user;
         List<List<string>> arr_events;
         List<List<string>> arr_of_work;
@@ -279,6 +285,46 @@ namespace SQL
 
             }
             method_arr_to_grid(arr_of_work, ref dataGridView3);
+
+
+
+        }
+
+        private void button6_Click(object sender, EventArgs e)//все что про Excel может быть не точно но это не точно.
+        {
+            int start_arr_in_excel = 2;
+            excelapp = new Excel.Application();// создаем новую книгу
+            excelapp.Visible = true;
+            excelapp.SheetsInNewWorkbook = 1; // указываем количество листов
+            excelapp.Workbooks.Add();//добавляем лист 
+            excelappworkbooks = excelapp.Workbooks;//определяем книгу(вроде как)
+            excelappworkbook = excelappworkbooks[1];//Получаем ссылку на книгу 1 - нумерация от 1
+            excelsheets = excelappworkbook.Worksheets;//определяем листы
+            excelworksheet = (Excel.Worksheet)excelsheets.get_Item(1);//получаем ссылку на первый лист
+            excelworksheet.Activate();//делаем активным первый лист 
+
+            excelcells = excelworksheet.get_Range("A1", "C1");
+            excelcells.Select();
+
+            ((Excel.Range)(excelapp.Selection)).Merge(Type.Missing);
+            excelcells = (Excel.Range)excelworksheet.Cells[1, "A"];//выбираем ячейку для заполнения
+            excelcells.Value2 = "Отчет о времени проведенном на рабочем месте за " + date_to_request;
+
+            //excelcells = excelworksheet.get_Range("A1", "A5");// Выбираем ячейку для вывода A1
+            //excelcells.Value2 = "10";
+
+            excelcells.Cells.ColumnWidth = 50;
+
+            for (int i = 0; i < arr_of_work.Count; i++)
+            {
+                excelcells = (Excel.Range)excelworksheet.Cells[i+ start_arr_in_excel, "A"];//выбираем ячейку для заполнения
+                excelcells.Value2 = arr_of_work[i][0];
+                excelcells = (Excel.Range)excelworksheet.Cells[i+ start_arr_in_excel, "B"];//выбираем ячейку для заполнения
+                excelcells.Value2 = arr_of_work[i][1];
+                excelcells = (Excel.Range)excelworksheet.Cells[i+ start_arr_in_excel, "C"];//выбираем ячейку для заполнения
+                excelcells.Value2 = arr_of_work[i][2];
+            }
+
 
 
 
