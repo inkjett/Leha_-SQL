@@ -76,7 +76,7 @@ namespace SQL
                 int i = 0, j = 0;
 
                 FbTransaction fbt = fb.BeginTransaction();
-                FbCommand SelectSQL = new FbCommand("SELECT people.lname||' '||people.fname||' '||people.sname, people.peopleid,cards.cardnum FROM cards INNER JOIN people ON(people.peopleid = CARDS.peopleid)", fb); //задаем запрос на выборку
+                FbCommand SelectSQL = new FbCommand("SELECT people.lname||' '||people.fname||' '||people.sname, people.peopleid,cards.cardnum, people.depid FROM cards INNER JOIN people ON(people.peopleid = CARDS.peopleid) where people.depid != 29", fb); //задаем запрос на выборку
                 SelectSQL.Transaction = fbt;
                 FbDataReader reader = SelectSQL.ExecuteReader();
                 
@@ -204,52 +204,42 @@ namespace SQL
         }
 
 
+        public void method_of_end_arr(List<List<string>> arr_events_in, List<List<string>> arr_user_in, ref List<List<string>> arr_out)
+        {
+            List<string> row = new List<string>();
+            arr_out = new List<List<string>>();
+
+            for (int i = 0; i < arr_user_in.Count; i++)
+            {
+                row = new List<string>();
+                arr_out.Add(row);
+                arr_out[i].Add("");
+                arr_out[i].Add("");
+                arr_out[i].Add("");
+                arr_out[i][0] = arr_user_in[i][0];
+                for (int ii = 0; ii < arr_events_in.Count; ii++)
+                {
+                    if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3))
+                    {
+                        arr_out[i][1] = arr_events_in[ii][0];
+                    }
+                    if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13))
+                    {
+                        arr_out[i][2] = arr_events_in[ii][0];
+                    }
+                }
+            }
+
+
+
+        }
+
+
 
 
 
         //-------------
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                arr_user = null;
-                if (fb.State != ConnectionState.Open)
-                {
-                    method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);
-                }
-                method_arr_of_users(ref arr_user);
-                method_arr_to_grid(arr_user, ref dataGridView1);
-            }
-            catch
-            {
-                MessageBox.Show("Проверьте подключение к БД", "Сообщение", MessageBoxButtons.OK);
-            }
-        }
-               
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                arr_events = null;
-                if (fb.State != ConnectionState.Open)
-                {
-                    method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);
-                }
-                method_arr_of_events(date_to_request, ref arr_events);
-                method_arr_to_grid(arr_events, ref dataGridView2);
-            }
-            catch
-            {
-                MessageBox.Show("Проверьте подключение к БД", "Сообщение", MessageBoxButtons.OK);
-            }
-        }
 
         private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
         {
@@ -258,32 +248,7 @@ namespace SQL
 
         private void button5_Click(object sender, EventArgs e)
         {
-            List<string> row = new List<string>();
-            arr_of_work = new List<List<string>>();
-
-            for (int i=0;i<arr_user.Count;i++)
-            {
-                row = new List<string>();
-                arr_of_work.Add(row);
-                arr_of_work[i].Add("");
-                arr_of_work[i].Add("");
-                arr_of_work[i].Add("");
-                arr_of_work[i][0] = arr_user[i][0];
-                for (int ii = 0; ii < arr_events.Count; ii++)
-                {
-                     if ((arr_user[i][2] == arr_events[ii][1])&&(Convert.ToInt32(arr_events[ii][2])==3))
-                     {
-                        arr_of_work[i][1] = arr_events[ii][0];
-                     }
-                     if ((arr_user[i][2] == arr_events[ii][1]) && (Convert.ToInt32(arr_events[ii][2]) == 13))
-                     {                     
-                        arr_of_work[i][2] = arr_events[ii][0];
-                     }
-                }
-
-
-
-            }
+            
             method_arr_to_grid(arr_of_work, ref dataGridView3);
 
 
@@ -292,7 +257,7 @@ namespace SQL
 
         private void button6_Click(object sender, EventArgs e)//все что про Excel может быть не точно но это не точно.
         {
-            int start_arr_in_excel = 2;
+            int start_arr_in_excel = 3;
             excelapp = new Excel.Application();// создаем новую книгу
             excelapp.Visible = true;
             excelapp.SheetsInNewWorkbook = 1; // указываем количество листов
@@ -303,29 +268,72 @@ namespace SQL
             excelworksheet = (Excel.Worksheet)excelsheets.get_Item(1);//получаем ссылку на первый лист
             excelworksheet.Activate();//делаем активным первый лист 
 
-            excelcells = excelworksheet.get_Range("A1", "C1");
-            excelcells.Select();
 
+            excelcells = excelworksheet.get_Range("A1", "D1");
+            excelcells.Select();
             ((Excel.Range)(excelapp.Selection)).Merge(Type.Missing);
             excelcells = (Excel.Range)excelworksheet.Cells[1, "A"];//выбираем ячейку для заполнения
+            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
             excelcells.Value2 = "Отчет о времени проведенном на рабочем месте за " + date_to_request;
+            excelcells = (Excel.Range)excelworksheet.Cells[2, "A"];//выбираем ячейку для заполнения
+            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
+            excelcells.Value2 = "№";
+            excelcells.Cells.ColumnWidth = 3;
+            excelcells = (Excel.Range)excelworksheet.Cells[2, "B"];//выбираем ячейку для заполнения
+            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
+            excelcells.Value2 = "Фамилия Имя Отчество";
+            excelcells.Cells.ColumnWidth = 35;
+            excelcells = (Excel.Range)excelworksheet.Cells[2, "C"];//выбираем ячейку для заполнения
+            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
+            excelcells.Value2 = "Время прихда на работу";
+            excelcells.Cells.ColumnWidth = 21;
+            excelcells = (Excel.Range)excelworksheet.Cells[2, "D"];//выбираем ячейку для заполнения
+            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
+            excelcells.Value2 = "Время ухода с работы";
+            excelcells.Cells.ColumnWidth = 21;
 
-            //excelcells = excelworksheet.get_Range("A1", "A5");// Выбираем ячейку для вывода A1
-            //excelcells.Value2 = "10";
 
-            excelcells.Cells.ColumnWidth = 50;
 
             for (int i = 0; i < arr_of_work.Count; i++)
             {
-                excelcells = (Excel.Range)excelworksheet.Cells[i+ start_arr_in_excel, "A"];//выбираем ячейку для заполнения
-                excelcells.Value2 = arr_of_work[i][0];
+                excelcells = (Excel.Range)excelworksheet.Cells[i + start_arr_in_excel,"A"];//выбираем ячейку для заполнения
+                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
+                excelcells.Value2 = i+1;
                 excelcells = (Excel.Range)excelworksheet.Cells[i+ start_arr_in_excel, "B"];//выбираем ячейку для заполнения
-                excelcells.Value2 = arr_of_work[i][1];
+                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
+                excelcells.Value2 = arr_of_work[i][0];
                 excelcells = (Excel.Range)excelworksheet.Cells[i+ start_arr_in_excel, "C"];//выбираем ячейку для заполнения
+                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
+                excelcells.Value2 = arr_of_work[i][1];
+                excelcells = (Excel.Range)excelworksheet.Cells[i+ start_arr_in_excel, "D"];//выбираем ячейку для заполнения
+                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
                 excelcells.Value2 = arr_of_work[i][2];
             }
 
 
+
+
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);
+
+            try
+            {
+                arr_user = null;
+                if (fb.State != ConnectionState.Open)
+                {
+                    method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);
+                }
+                method_arr_of_users(ref arr_user);
+                method_arr_of_events(date_to_request, ref arr_events);
+                method_of_end_arr(arr_events, arr_user, ref arr_of_work);
+            }
+            catch
+            {
+                MessageBox.Show("Проверьте подключение к БД", "Сообщение", MessageBoxButtons.OK);
+            }
 
 
         }
