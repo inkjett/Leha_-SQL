@@ -38,7 +38,8 @@ namespace SQL
         DateTime now = DateTime.Now;
         Form3 fr3 = new Form3();
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
-       
+        TimeSpan hour = new TimeSpan(1, 0, 0);
+
 
 
         //------
@@ -58,29 +59,14 @@ namespace SQL
         {
             try
             {
-                /*FbConnectionStringBuilder fb_connect = new FbConnectionStringBuilder();
-                fb_connect.Charset = "WIN1251"; // кодировка
-                fb_connect.UserID = Text_user.Text; // Логин
-                fb_connect.Password = Text_pass.Text; // Пароль
-                fb_connect.Database = @"\172.16.149.103\db\dbguarde.fdb"; // путь до БД
-                fb_connect.ServerType = 0; //  хз что такое  ----   указываем тип сервера (0 - "полноценный Firebird" (classic или super server), 1 - встроенный (embedded))
-                string temp = fb_connect.ToString();
-                fb = new FbConnection(fb_connect.ToString()); // открываем подключение, вставляя строку подключения 
-                */
-
                 string path_path = "character set = WIN1251; initial catalog = "+textBox4.Text+":" + @""+textBox1.Text+"; user id = " + Text_user.Text + "; password = " + Text_pass.Text + "; ";
                 fb = new FbConnection(path_path);
-                
-                //fb = new FbConnection("character set=WIN1251;user id=SYSDBA;password=masterkey;initial catalog="+@"c:\123.fdb"+ ";server type=Default");
-                
                 fb.Open();
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Сообщение", MessageBoxButtons.OK);
             }
-            //FbDatabaseInfo fb_info = new FbDatabaseInfo(fb);
-            //MessageBox.Show("Info: "+ fb_info.ServerClass+"\nVer: "+fb_info.ServerVersion);
             if (fb.State == ConnectionState.Open)
             {
                 Label_out.Text = "Подключено";
@@ -228,13 +214,14 @@ namespace SQL
                     if (arr_in.Count != 0)
                     {
                         Grid_out.RowCount = arr_in.Count;
-                        Grid_out.ColumnCount = 3;
+                        Grid_out.ColumnCount = 4;
                         dataGridView3.Columns[0].Width = 180;
-                        dataGridView3.Columns[1].Width = 120;
-                        dataGridView3.Columns[2].Width = 120;
+                        dataGridView3.Columns[1].Width = 60;
+                        dataGridView3.Columns[2].Width = 60;
+                        dataGridView3.Columns[3].Width = 60;
                         for (int ii = 0; ii < arr_in.Count; ii++)
                         {
-                            for (int jj = 0; jj < 3; jj++)
+                            for (int jj = 0; jj < 4; jj++)
                             {
                                 Grid_out.Rows[ii].Cells[jj].Value = String.Format("{0}", arr_in[ii][jj]);
                             }
@@ -252,6 +239,7 @@ namespace SQL
 
         public void method_of_end_arr(List<List<string>> arr_events_in, List<List<string>> arr_user_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
         {
+
             if (data_is_read == true)
             {
 
@@ -264,6 +252,7 @@ namespace SQL
                     {
                         row = new List<string>();
                         arr_out.Add(row);
+                        arr_out[i].Add("");
                         arr_out[i].Add("");
                         arr_out[i].Add("");
                         arr_out[i].Add("");
@@ -286,17 +275,24 @@ namespace SQL
                                 arr_out[i][2] = temp2;
                             }
                         }
+
                     }
 
+                    for (int i = 0; i < arr_out.Count; i++)
+                    {
+
+                        if ((arr_out[i][1]!="") && (arr_out[i][2] !=""))
+                        {
+                            DateTime start = DateTime.Parse(arr_out[i][1]);
+                            DateTime end = DateTime.Parse(arr_out[i][2]);
+                            if (end >= start)
+                            {
+                                arr_out[i][3] = Convert.ToString(end - start - hour);
+                            }
+                        }
+                    }
 
                 }
-
-                //DateTime start = DateTime.Parse();
-                //DateTime end = DateTime.Parse();
-
-                //DateTime diff = end - start;
-
-
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message, "Сообщение", MessageBoxButtons.OK);
@@ -310,20 +306,41 @@ namespace SQL
             var sheet = excelFile.Workbook.Worksheets.Add("Отчет отработанного времени");
 
             sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + date_to_request;
-            sheet.Cells["A1:D1"].Merge = true;
+            sheet.Cells[1, 1].Style.Font.Bold = true;
+            sheet.Cells[1, 1].Style.Font.Size = 16;
+            sheet.Cells["A1:E1"].Merge = true;
+            sheet.Column(1).Width = 5;
+            sheet.Column(2).Width = 45;
+            sheet.Column(3).Width = 12;
+            sheet.Column(4).Width = 12;
+            sheet.Column(5).Width = 12;
             sheet.Cells[2, 1].Value = "№";
-            sheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            sheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells[2, 2].Value = "Фамилия Имя Отчество";
+            sheet.Cells[2, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells[2, 3].Value = "Время прихода на работу";
+            sheet.Cells[2, 3].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 3].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[2, 3].Style.WrapText = true;
             sheet.Cells[2, 4].Value = "Время ухода с работы";
+            sheet.Cells[2, 4].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 4].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[2, 4].Style.WrapText = true;
+            sheet.Cells[2, 5].Value = "Время нахождения на работе";
+            sheet.Cells[2, 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 5].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[2, 5].Style.WrapText = true;
+
 
             for (int i = 0; i < arr_in.Count; i++)
             {
                 sheet.Cells[i + 3, 1].Value = i + 1;
-                sheet.Cells[i + 3, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                 sheet.Cells[i + 3, 2].Value = arr_in[i][0];
                 sheet.Cells[i + 3, 3].Value = arr_in[i][1];
                 sheet.Cells[i + 3, 4].Value = arr_in[i][2];
+                sheet.Cells[i + 3, 5].Value = arr_in[i][3];
             }
 
             using (var cells = sheet.Cells[sheet.Dimension.Address])
@@ -332,16 +349,14 @@ namespace SQL
                 cells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                 cells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
                 cells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                cells.AutoFitColumns();
+                cells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                cells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                //cells.AutoFitColumns();//автоформат ячеек
             }
 
 
             var bin = excelFile.GetAsByteArray();
             File.WriteAllBytes(@"Отчет_за_" + date_to_request + ".xlsx", bin);
-
-
-
-
         }
  
                
