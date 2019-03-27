@@ -199,6 +199,8 @@ namespace SQL
                             i++;
                             start_bool = false;
                         }
+
+
                     }
                     finally
                     {
@@ -271,15 +273,30 @@ namespace SQL
                         {
                             if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3))
                             {
-                                arr_out[i][1] = arr_events_in[ii][0];
+                                string temp = arr_events_in[ii][0];
+                                int value_of_index = temp.IndexOf(" ");
+                                string temp2 = temp.Remove(0, value_of_index+1);
+                                arr_out[i][1] = temp2;
                             }
                             if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13))
                             {
-                                arr_out[i][2] = arr_events_in[ii][0];
+                                string temp = arr_events_in[ii][0];
+                                int value_of_index = temp.IndexOf(" ");
+                                string temp2 = temp.Remove(0, value_of_index+1);
+                                arr_out[i][2] = temp2;
                             }
                         }
                     }
+
+
                 }
+
+                //DateTime start = DateTime.Parse();
+                //DateTime end = DateTime.Parse();
+
+                //DateTime diff = end - start;
+
+
                 catch (Exception e)
                 {
                     MessageBox.Show(e.Message, "Сообщение", MessageBoxButtons.OK);
@@ -366,7 +383,15 @@ namespace SQL
 
         private void button1_Click(object sender, EventArgs e)
         {
-           // method_of_excel(arr_of_work);
+            try
+            {
+                method_arr_to_excel_eppuls(arr_of_work);
+            }
+            catch (Exception r)
+            {
+                MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
+            }
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -383,9 +408,5 @@ namespace SQL
             }
         }
 
-        private void button3_Click_1(object sender, EventArgs e)
-        {
-            method_arr_to_excel_eppuls(arr_of_work);
-        }
     }
 }
