@@ -13,3 +13,4 @@ C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.pdb
 C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.csproj.ResolveComReference.cache
 C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.Form2.resources
 C:\Users\Galyamov\Documents\Leha_-SQL\SQL\obj\Debug\SQL.Form3.resources
+C:\Users\Galyamov\Documents\Leha_-SQL\SQL\bin\Debug\EPPlus.dll

@@ -38,7 +38,8 @@ namespace SQL
         DateTime now = DateTime.Now;
         Form3 fr3 = new Form3();
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
-        
+       
+
 
         //------
         public Form1()
@@ -286,71 +287,47 @@ namespace SQL
             }
         }
 
-
-        public void method_of_excel(List<List<string>> arr_in)
+        public void method_arr_to_excel_eppuls(List<List<string>> arr_in)
         {
+            var excelFile = new ExcelPackage();
+            var sheet = excelFile.Workbook.Worksheets.Add("Отчет отработанного времени");
 
-            int start_arr_in_excel = 3;
-            excelapp = new Excel.Application();// создаем новую книгу
-            excelapp.Visible = false;
-            excelapp.SheetsInNewWorkbook = 1; // указываем количество листов
-            excelapp.Workbooks.Add();//добавляем лист 
-            excelappworkbooks = excelapp.Workbooks;//определяем книгу(вроде как)
-            excelappworkbook = excelappworkbooks[1];//Получаем ссылку на книгу 1 - нумерация от 1
-            excelsheets = excelappworkbook.Worksheets;//определяем листы
-            excelworksheet = (Excel.Worksheet)excelsheets.get_Item(1);//получаем ссылку на первый лист
-            excelworksheet.Activate();//делаем активным первый лист 
-            excelappworkbook.Saved = true;
-
-
-            excelcells = excelworksheet.get_Range("A1", "D1");
-            excelcells.Select();
-            ((Excel.Range)(excelapp.Selection)).Merge(Type.Missing);
-            excelcells = (Excel.Range)excelworksheet.Cells[1, "A"];//выбираем ячейку для заполнения
-            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-            excelcells.Value2 = "Отчет о времени проведенном на рабочем месте за " + date_to_request;
-            excelcells = (Excel.Range)excelworksheet.Cells[2, "A"];//выбираем ячейку для заполнения
-            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-            excelcells.Value2 = "№";
-            excelcells.Cells.ColumnWidth = 3;
-            excelcells = (Excel.Range)excelworksheet.Cells[2, "B"];//выбираем ячейку для заполнения
-            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-            excelcells.Value2 = "Фамилия Имя Отчество";
-            excelcells.Cells.ColumnWidth = 35;
-            excelcells = (Excel.Range)excelworksheet.Cells[2, "C"];//выбираем ячейку для заполнения
-            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-            excelcells.Value2 = "Время прихода на работу";
-            excelcells.Cells.ColumnWidth = 21;
-            excelcells = (Excel.Range)excelworksheet.Cells[2, "D"];//выбираем ячейку для заполнения
-            excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-            excelcells.Value2 = "Время ухода с работы";
-            excelcells.Cells.ColumnWidth = 21;
-
-
+            sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + date_to_request;
+            sheet.Cells["A1:D1"].Merge = true;
+            sheet.Cells[2, 1].Value = "№";
+            sheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+            sheet.Cells[2, 2].Value = "Фамилия Имя Отчество";
+            sheet.Cells[2, 3].Value = "Время прихода на работу";
+            sheet.Cells[2, 4].Value = "Время ухода с работы";
 
             for (int i = 0; i < arr_in.Count; i++)
             {
-                excelcells = (Excel.Range)excelworksheet.Cells[i + start_arr_in_excel, "A"];//выбираем ячейку для заполнения
-                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-                excelcells.Value2 = i + 1;
-                excelcells = (Excel.Range)excelworksheet.Cells[i + start_arr_in_excel, "B"];//выбираем ячейку для заполнения
-                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-                excelcells.Value2 = arr_in[i][0];
-                excelcells = (Excel.Range)excelworksheet.Cells[i + start_arr_in_excel, "C"];//выбираем ячейку для заполнения
-                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-                excelcells.Value2 = arr_in[i][1];
-                excelcells = (Excel.Range)excelworksheet.Cells[i + start_arr_in_excel, "D"];//выбираем ячейку для заполнения
-                excelcells.BorderAround(Excel.XlLineStyle.xlContinuous, Excel.XlBorderWeight.xlThin, Excel.XlColorIndex.xlColorIndexAutomatic);
-                excelcells.Value2 = arr_in[i][2];
+                sheet.Cells[i + 3, 1].Value = i + 1;
+                sheet.Cells[i + 3, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                sheet.Cells[i + 3, 2].Value = arr_in[i][0];
+                sheet.Cells[i + 3, 3].Value = arr_in[i][1];
+                sheet.Cells[i + 3, 4].Value = arr_in[i][2];
             }
-            excelappworkbook.SaveAs(@"C:\Отчет_за_" + date_to_request + ".xlsx");
-            excelapp.Visible = true;
-            excelappworkbooks.Open(@"C:\Отчет_за_" + date_to_request + ".xlsx");
-            //excelapp.Quit();
+
+            using (var cells = sheet.Cells[sheet.Dimension.Address])
+            {
+                cells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                cells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                cells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                cells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                cells.AutoFitColumns();
+            }
+
+
+            var bin = excelFile.GetAsByteArray();
+            File.WriteAllBytes(@"Отчет_за_" + date_to_request + ".xlsx", bin);
+
+
+
 
         }
-
-
+ 
+               
         //-------------
 
 
@@ -389,7 +366,7 @@ namespace SQL
 
         private void button1_Click(object sender, EventArgs e)
         {
-            method_of_excel(arr_of_work);
+           // method_of_excel(arr_of_work);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -404,6 +381,11 @@ namespace SQL
             {
                 textBox1.Text = openFileDialog1.FileName;
             }
+        }
+
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            method_arr_to_excel_eppuls(arr_of_work);
         }
     }
 }
