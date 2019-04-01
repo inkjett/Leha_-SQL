@@ -30,6 +30,7 @@ namespace SQL
         List<List<string>> arr_user;
         List<List<string>> arr_events;
         List<List<string>> arr_of_work;
+        List<List<string>> arr_of_deviation;  
         string date_to_request = "0";
         public bool data_is_read = false;
         public string path_to_DB = "C:\\123.fdb";
@@ -237,9 +238,8 @@ namespace SQL
         }
 
 
-        public void method_of_end_arr(List<List<string>> arr_events_in, List<List<string>> arr_user_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
-        {
-
+        public void method_of_end_arr(List<List<string>> arr_events_in, List<List<string>> arr_user_in, List<List<string>>  arr_of_deviation_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
+        {            
             if (data_is_read == true)
             {
 
@@ -248,7 +248,7 @@ namespace SQL
                     List<string> row = new List<string>();
                     arr_out = new List<List<string>>();
 
-                    for (int i = 0; i < arr_user_in.Count; i++)
+                    for (int i = 0; i < arr_user_in.Count; i++)// формирование массива отработанного времени 
                     {
                         row = new List<string>();
                         arr_out.Add(row);
@@ -256,29 +256,23 @@ namespace SQL
                         arr_out[i].Add("");
                         arr_out[i].Add("");
                         arr_out[i].Add("");
+                        arr_out[i].Add("");
                         arr_out[i][0] = arr_user_in[i][0];
-
-                        for (int ii = 0; ii < arr_events_in.Count; ii++)// формирование массива 
+                        arr_out[i][4] = arr_user_in[i][1];//добавление ID пользователя в в 4 столбец,нужен для формирования списка командировка итд
+                        for (int ii = 0; ii < arr_events_in.Count; ii++)
                         {
                             if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3))
                             {
-                                string temp = arr_events_in[ii][0];
-                                int value_of_index = temp.IndexOf(" ");
-                                string temp2 = temp.Remove(0, value_of_index+1);
-                                arr_out[i][1] = temp2;
-                            }
+                                arr_out[i][1] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+                                                            }
                             if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13))
                             {
-                                string temp = arr_events_in[ii][0];
-                                int value_of_index = temp.IndexOf(" ");
-                                string temp2 = temp.Remove(0, value_of_index+1);
-                                arr_out[i][2] = temp2;
+                                arr_out[i][2] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+
                             }
                         }
-
                     }
-
-                    for (int i = 0; i < arr_out.Count; i++)
+                    for (int i = 0; i < arr_out.Count; i++)//вычисление столбца отработанного времени(8 часов)
                     {
 
                         if ((arr_out[i][1]!="") && (arr_out[i][2] !=""))
@@ -291,6 +285,36 @@ namespace SQL
                             }
                         }
                     }
+                    for (int ii = 0; ii < arr_out.Count; ii++)//0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
+                    {
+                        for (int iii = 0; iii < arr_of_deviation_in.Count;iii++)
+                        {
+                            if (arr_out[ii][4] == arr_of_deviation_in[iii][0])
+                            {
+                                if (((DateTime.Parse(arr_of_deviation_in[iii][2]) <= DateTime.Parse(date_to_request)) && (DateTime.Parse(date_to_request) <= DateTime.Parse(arr_of_deviation_in[iii][3]))))//проверка на командировку отпуск итд
+                                {
+                                    arr_out[ii][1] = arr_of_deviation_in[iii][1];
+                                    switch (Convert.ToInt16(arr_out[ii][1]))
+                                    {
+                                        case 0:
+                                            arr_out[ii][1] = "больничный";
+                                            break;
+
+                                        case 1:
+                                            arr_out[ii][1] = "отпуск";
+                                            break;
+                                        case 2:
+                                            arr_out[ii][1] = "командировка";
+                                            break;
+                                        case 3:
+                                            arr_out[ii][1] = "удаленная работа";
+                                            break;
+                                    }
+                                }
+                            }
+
+                        }
+                    }            
 
                 }
                 catch (Exception e)
@@ -311,9 +335,9 @@ namespace SQL
             sheet.Cells["A1:E1"].Merge = true;
             sheet.Column(1).Width = 5;
             sheet.Column(2).Width = 45;
-            sheet.Column(3).Width = 12;
-            sheet.Column(4).Width = 12;
-            sheet.Column(5).Width = 12;
+            sheet.Column(3).Width = 14;
+            sheet.Column(4).Width = 14;
+            sheet.Column(5).Width = 14;
             sheet.Cells[2, 1].Value = "№";
             sheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells[2, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
@@ -339,6 +363,10 @@ namespace SQL
                 sheet.Cells[i + 3, 1].Value = i + 1;
                 sheet.Cells[i + 3, 2].Value = arr_in[i][0];
                 sheet.Cells[i + 3, 3].Value = arr_in[i][1];
+                if ( (arr_in[i][1] == Convert.ToString("больничный")) || (arr_in[i][1] == Convert.ToString("отпуск")) || (arr_in[i][1] == Convert.ToString("командировка")) || (arr_in[i][1] == Convert.ToString("удаленная работа")))
+                {
+                    sheet.Cells["C"+(i+3)+":"+"E"+(i+3)].Merge = true;
+                }
                 sheet.Cells[i + 3, 4].Value = arr_in[i][2];
                 sheet.Cells[i + 3, 5].Value = arr_in[i][3];
             }
@@ -360,6 +388,66 @@ namespace SQL
         }
  
                
+
+
+
+        public void method_of_deviation(ref List<List<string>> arr_out )//отпуск командировка 0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
+        {
+
+            try
+            {
+                if (fb.State == ConnectionState.Open)
+                {
+                    int i = 0, j = 0;
+
+                    FbTransaction fbt = fb.BeginTransaction();
+                    FbCommand SelectSQL = new FbCommand("SELECT deviation.peopleid, deviation.devtype, deviation.devfrom,deviation.devto from deviation", fb); //задаем запрос на получение данных
+                    SelectSQL.Transaction = fbt;
+                    FbDataReader reader = SelectSQL.ExecuteReader();
+
+                    List<string> row = new List<string>();
+                    Int32 temp = reader.FieldCount;
+                    arr_out = new List<List<string>>();
+
+                    try
+                    {
+                        while (reader.Read()) //пока не прочли все данные выполняем... //select_result = select_result + reader.GetInt32(0 ).ToString() + ", " + reader.GetString(1) + "\n";
+                        {
+                            row = new List<string>();
+                            arr_out.Add(row);
+                            arr_out[i].Add("");
+                            arr_out[i].Add("");
+                            arr_out[i].Add("");
+                            arr_out[i].Add("");
+                            arr_out[i][j] = reader.GetString(0).ToString();
+                            arr_out[i][j + 1] = reader.GetString(1).ToString();
+                            int tempInt_in = reader.GetString(2).ToString().IndexOf(" ");
+                            string tempT_in2 = reader.GetString(2).ToString().Remove(tempInt_in);
+                            arr_out[i][j + 2] = tempT_in2;
+                            int tempInt_out = reader.GetString(3).ToString().IndexOf(" ");
+                            string tempT_out2 = reader.GetString(3).ToString().Remove(tempInt_in);
+                            arr_out[i][j + 3] = tempT_out2;
+                            i++;
+                        }
+                    }
+                    finally
+                    {
+                        //всегда необходимо вызывать метод Close(), когда чтение данных завершено
+                        reader.Close();
+                        fbt.Dispose();
+                        data_is_read = true;
+                        //fb.Close(); //закрываем соединение, т.к. оно нам больше не нужно
+                    }
+                    SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
+                }
+            }
+            catch (Exception y)
+            {
+                MessageBox.Show(y.Message, "Сообщение", MessageBoxButtons.OK);
+            }
+
+        }
+
         //-------------
 
 
@@ -372,17 +460,18 @@ namespace SQL
         private void button7_Click(object sender, EventArgs e)
         {
 
-            method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);
-            if (date_to_request == "0")
+            method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);// подключаемся к БД
+            if (date_to_request == "0")//если 0 то берем сегодняшнюю дату
             {
                 date_to_request = now.ToString("dd.MM.yyyy");
             }
             try
             {
-                method_arr_of_users(ref arr_user);
-                method_arr_of_events(date_to_request, ref arr_events);
-                method_of_end_arr(arr_events, arr_user, ref arr_of_work);
-                method_arr_to_grid(arr_of_work, ref dataGridView3);
+                method_arr_of_users(ref arr_user);//фомируем массив пользователей
+                method_of_deviation(ref arr_of_deviation);//формируем массив отпусков командировок итд
+                method_arr_of_events(date_to_request, ref arr_events);//формируем массив сообытий
+                method_of_end_arr(arr_events, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
+                method_arr_to_grid(arr_of_work, ref dataGridView3);//выводим массив в датагрид
             }
             catch (Exception r)
             {
