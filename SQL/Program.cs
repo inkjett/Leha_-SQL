@@ -8,6 +8,7 @@ namespace SQL
 {
     static class Program
     {
+        public static Form1 f1;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>

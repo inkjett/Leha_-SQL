@@ -27,19 +27,19 @@ namespace SQL
         public Excel.Workbook excelappworkbook;
         public Excel.Sheets excelsheets;
         public Excel.Range excelcells;
-        List<List<string>> arr_user;
+        public List<List<string>> arr_user;
         List<List<string>> arr_events;
         List<List<string>> arr_of_work;
-        List<List<string>> arr_of_deviation;  
+        public List<List<string>> arr_of_deviation;  
         string date_to_request = "0";
         public bool data_is_read = false;
         public string path_to_DB = "C:\\123.fdb";
         public string User = "SYSDBA";
         public string Pass = "masterkey";
         DateTime now = DateTime.Now;
-        Form3 fr3 = new Form3();
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
         TimeSpan hour = new TimeSpan(1, 0, 0);
+
 
 
 
@@ -47,7 +47,9 @@ namespace SQL
         public Form1()
         {
             InitializeComponent();
+            Program.f1 = this;
         }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -215,14 +217,15 @@ namespace SQL
                     if (arr_in.Count != 0)
                     {
                         Grid_out.RowCount = arr_in.Count;
-                        Grid_out.ColumnCount = 4;
+                        Grid_out.ColumnCount = 5;
                         dataGridView3.Columns[0].Width = 180;
                         dataGridView3.Columns[1].Width = 60;
                         dataGridView3.Columns[2].Width = 60;
                         dataGridView3.Columns[3].Width = 60;
+                        dataGridView3.Columns[4].Width = 60;
                         for (int ii = 0; ii < arr_in.Count; ii++)
                         {
-                            for (int jj = 0; jj < 4; jj++)
+                            for (int jj = 0; jj < 5; jj++)
                             {
                                 Grid_out.Rows[ii].Cells[jj].Value = String.Format("{0}", arr_in[ii][jj]);
                             }
@@ -257,8 +260,9 @@ namespace SQL
                         arr_out[i].Add("");
                         arr_out[i].Add("");
                         arr_out[i].Add("");
+                        arr_out[i].Add("");
                         arr_out[i][0] = arr_user_in[i][0];
-                        arr_out[i][4] = arr_user_in[i][1];//добавление ID пользователя в в 4 столбец,нужен для формирования списка командировка итд
+                        arr_out[i][5] = arr_user_in[i][1];//добавление ID пользователя в в 4 столбец,нужен для формирования списка командировка итд
                         for (int ii = 0; ii < arr_events_in.Count; ii++)
                         {
                             if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3))
@@ -289,25 +293,24 @@ namespace SQL
                     {
                         for (int iii = 0; iii < arr_of_deviation_in.Count;iii++)
                         {
-                            if (arr_out[ii][4] == arr_of_deviation_in[iii][0])
+                            if (arr_out[ii][5] == arr_of_deviation_in[iii][0])
                             {
                                 if (((DateTime.Parse(arr_of_deviation_in[iii][2]) <= DateTime.Parse(date_to_request)) && (DateTime.Parse(date_to_request) <= DateTime.Parse(arr_of_deviation_in[iii][3]))))//проверка на командировку отпуск итд
                                 {
-                                    arr_out[ii][1] = arr_of_deviation_in[iii][1];
-                                    switch (Convert.ToInt16(arr_out[ii][1]))
+                                    arr_out[ii][4] = arr_of_deviation_in[iii][1];
+                                    switch (Convert.ToInt16(arr_out[ii][4]))
                                     {
                                         case 0:
-                                            arr_out[ii][1] = "больничный";
+                                            arr_out[ii][4] = "больничный";
                                             break;
-
                                         case 1:
-                                            arr_out[ii][1] = "отпуск";
+                                            arr_out[ii][4] = "отпуск";
                                             break;
                                         case 2:
-                                            arr_out[ii][1] = "командировка";
+                                            arr_out[ii][4] = "командировка";
                                             break;
                                         case 3:
-                                            arr_out[ii][1] = "удаленная работа";
+                                            arr_out[ii][4] = "удаленная работа";
                                             break;
                                     }
                                 }
@@ -332,12 +335,13 @@ namespace SQL
             sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + date_to_request;
             sheet.Cells[1, 1].Style.Font.Bold = true;
             sheet.Cells[1, 1].Style.Font.Size = 16;
-            sheet.Cells["A1:E1"].Merge = true;
+            sheet.Cells["A1:F1"].Merge = true;
             sheet.Column(1).Width = 5;
             sheet.Column(2).Width = 45;
             sheet.Column(3).Width = 14;
             sheet.Column(4).Width = 14;
             sheet.Column(5).Width = 14;
+            sheet.Column(6).Width = 14;
             sheet.Cells[2, 1].Value = "№";
             sheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells[2, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
@@ -356,19 +360,23 @@ namespace SQL
             sheet.Cells[2, 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells[2, 5].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells[2, 5].Style.WrapText = true;
-
+            sheet.Cells[2, 6].Value = "Примечание";
+            sheet.Cells[2, 6].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 6].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[2, 6].Style.WrapText = true;
 
             for (int i = 0; i < arr_in.Count; i++)
             {
                 sheet.Cells[i + 3, 1].Value = i + 1;
                 sheet.Cells[i + 3, 2].Value = arr_in[i][0];
                 sheet.Cells[i + 3, 3].Value = arr_in[i][1];
-                if ( (arr_in[i][1] == Convert.ToString("больничный")) || (arr_in[i][1] == Convert.ToString("отпуск")) || (arr_in[i][1] == Convert.ToString("командировка")) || (arr_in[i][1] == Convert.ToString("удаленная работа")))
+                /*if ( (arr_in[i][1] == Convert.ToString("больничный")) || (arr_in[i][1] == Convert.ToString("отпуск")) || (arr_in[i][1] == Convert.ToString("командировка")) || (arr_in[i][1] == Convert.ToString("удаленная работа")))
                 {
                     sheet.Cells["C"+(i+3)+":"+"E"+(i+3)].Merge = true;
-                }
+                }*/
                 sheet.Cells[i + 3, 4].Value = arr_in[i][2];
                 sheet.Cells[i + 3, 5].Value = arr_in[i][3];
+                sheet.Cells[i + 3, 6].Value = arr_in[i][4];
             }
 
             using (var cells = sheet.Cells[sheet.Dimension.Address])
@@ -401,7 +409,7 @@ namespace SQL
                     int i = 0, j = 0;
 
                     FbTransaction fbt = fb.BeginTransaction();
-                    FbCommand SelectSQL = new FbCommand("SELECT deviation.peopleid, deviation.devtype, deviation.devfrom,deviation.devto from deviation", fb); //задаем запрос на получение данных
+                    FbCommand SelectSQL = new FbCommand("SELECT deviation.peopleid, deviation.devtype, deviation.devfrom,deviation.devto,deviation.deviationid from deviation", fb); //задаем запрос на получение данных
                     SelectSQL.Transaction = fbt;
                     FbDataReader reader = SelectSQL.ExecuteReader();
 
@@ -419,14 +427,16 @@ namespace SQL
                             arr_out[i].Add("");
                             arr_out[i].Add("");
                             arr_out[i].Add("");
-                            arr_out[i][j] = reader.GetString(0).ToString();
-                            arr_out[i][j + 1] = reader.GetString(1).ToString();
+                            arr_out[i].Add("");
+                            arr_out[i][j] = reader.GetString(0).ToString();//ID пользователя
+                            arr_out[i][j + 1] = reader.GetString(1).ToString();//ID состояния
                             int tempInt_in = reader.GetString(2).ToString().IndexOf(" ");
-                            string tempT_in2 = reader.GetString(2).ToString().Remove(tempInt_in);
+                            string tempT_in2 = reader.GetString(2).ToString().Remove(tempInt_in);//Дата начала 
                             arr_out[i][j + 2] = tempT_in2;
                             int tempInt_out = reader.GetString(3).ToString().IndexOf(" ");
-                            string tempT_out2 = reader.GetString(3).ToString().Remove(tempInt_in);
+                            string tempT_out2 = reader.GetString(3).ToString().Remove(tempInt_in);//Дата конца
                             arr_out[i][j + 3] = tempT_out2;
+                            arr_out[i][j + 4] = reader.GetString(4).ToString();//ID записи 
                             i++;
                         }
                     }
@@ -500,6 +510,7 @@ namespace SQL
 
         private void button2_Click(object sender, EventArgs e)
         {
+            Form3 fr3 = new Form3();
             fr3.Show();
         }
 
@@ -512,5 +523,10 @@ namespace SQL
             }
         }
 
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            Form4 fr4 = new Form4();
+            fr4.Show();
+        }
     }
 }
