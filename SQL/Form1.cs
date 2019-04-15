@@ -39,7 +39,7 @@ namespace SQL
         DateTime now = DateTime.Now;
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
         TimeSpan hour = new TimeSpan(1, 0, 0);
-
+        public string connecting_path;
 
 
 
@@ -58,12 +58,20 @@ namespace SQL
 
 
         //методы
-        public void method_connect_to_fb(TextBox Text_Path, TextBox Text_user, TextBox Text_pass, ref Label Label_out)// метод подключения к БД
+        public string method_connection_string (TextBox Text_Path, TextBox Text_user, TextBox Text_pass)
+        {
+            string path_path = "character set = WIN1251; initial catalog = " + textBox4.Text + ":" + @"" + textBox1.Text + "; user id = " + Text_user.Text + "; password = " + Text_pass.Text + "; ";
+            return path_path;
+        }
+
+
+
+        public void method_connect_to_fb(string path_in, ref Label Label_out)// метод подключения к БД
         {
             try
             {
-                string path_path = "character set = WIN1251; initial catalog = "+textBox4.Text+":" + @""+textBox1.Text+"; user id = " + Text_user.Text + "; password = " + Text_pass.Text + "; ";
-                fb = new FbConnection(path_path);
+                //string path_path = "character set = WIN1251; initial catalog = "+textBox4.Text+":" + @""+textBox1.Text+"; user id = " + Text_user.Text + "; password = " + Text_pass.Text + "; ";
+                fb = new FbConnection(path_in);
                 fb.Open();
             }
             catch (Exception e)
@@ -470,7 +478,8 @@ namespace SQL
         private void button7_Click(object sender, EventArgs e)
         {
 
-            method_connect_to_fb(textBox1, textBox2, textBox3, ref label5);// подключаемся к БД
+            connecting_path = method_connection_string(textBox1, textBox2, textBox3);
+            method_connect_to_fb(connecting_path,ref label5);// подключаемся к БД
             if (date_to_request == "0")//если 0 то берем сегодняшнюю дату
             {
                 date_to_request = now.ToString("dd.MM.yyyy");
