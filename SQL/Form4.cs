@@ -20,8 +20,7 @@ namespace SQL
         public Form4()
         {
             InitializeComponent();
-        }
-        List<List<string>> arr_of_deviation_to_DB;
+        }        
         private void button1_Click(object sender, EventArgs e)
         {
             
@@ -31,9 +30,6 @@ namespace SQL
 
                 listBox1.Items.Insert(i, Program.f1.arr_user[i][0]);
             }
-
-
-
         }
 
 
@@ -57,7 +53,6 @@ namespace SQL
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int GridCount = 0;
             dataGridView1.Rows.Clear();
             dataGridView1.ColumnCount = 4;
             dataGridView1.Columns[0].Width = 90;
@@ -98,22 +93,6 @@ namespace SQL
         private void button2_Click(object sender, EventArgs e)
         {
 
-            //var temp = e.RowIndex;
-            //var temp2 = e.ColumnIndex;
-            method_connect_to_fb(Program.f1.connecting_path);
-            //string QerySQL = "update deviation set deviation.devfrom='" + "02.04.2020  0:00:00" + "', deviation.devto='" + "14.04.2020  0:00:00" + "', deviation.devtype=0 where deviation.deviationid='12'";
-            FbCommand InsertSQL = new FbCommand("update deviation set deviation.devfrom='" + "02.04.2020  0:00:00" + "', deviation.devto='" + "14.04.2020  0:00:00" + "', deviation.devtype=0 where deviation.deviationid='12'", fb); //задаем запрос на получение данных
-            
-            if (fb.State == ConnectionState.Open)
-            {
-                FbTransaction fbt = fb.BeginTransaction(); //необходимо проинициализить транзакцию для объекта InsertSQL
-                InsertSQL.Transaction = fbt;
-                int result = InsertSQL.ExecuteNonQuery();
-                MessageBox.Show("ВЫполнено" + result);
-                fbt.Commit();
-                fbt.Dispose();
-                InsertSQL.Dispose();
-            }
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -123,37 +102,53 @@ namespace SQL
 
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            string datagrid
-
+            string pattern = @"^[0-3]{1}[0-9]{1}.[0-1]{1}[0-9]{1}.[2]{1}[0-1]{1}[0-9]{2}$";//строка дял проверки ввода даты на формат XX.XX.XXXX
             int reason_absence = -1;
-            bool find_reason = false;
+            bool can_run_query = false;
 
-            string pattern = @"^[0-3]{1}[0-9]{1}.[0-1]{1}[0-9]{1}.[2]{1}[0-1]{1}[0-9]{2}$";
-            method_connect_to_fb(Program.f1.connecting_path);
+
+            method_connect_to_fb(Program.f1.connecting_path);// проверка ввода 
             if(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "больничный")
             {
                 reason_absence = 0;
-                find_reason = true;
-
+                can_run_query = true;
             }
+
             if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "отпуск")
             {
                 reason_absence = 1;
-                find_reason = true;
+                can_run_query = true;
             }
             if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "командировка")
             {
                 reason_absence = 2;
-                find_reason = true;
+                can_run_query = true;
             }
             if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "удаленная работа")
             {
                 reason_absence = 3;
-                find_reason = true;
+                can_run_query = true;
             }
-            
 
-            if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value), pattern)))
+            if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern))&& can_run_query)
+            {
+                can_run_query = true;
+            }
+            else
+            {
+                can_run_query = false;
+            }
+
+            if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[2].Value), pattern)) && can_run_query)
+            {
+                can_run_query = true;
+            }
+            else
+            {
+                can_run_query = false;
+            }
+
+            if (can_run_query)
             {
                 FbCommand InsertSQL = new FbCommand("update deviation set deviation.devfrom='" + dataGridView1.Rows[e.RowIndex].Cells[1].Value + "', deviation.devto='" + dataGridView1.Rows[e.RowIndex].Cells[2].Value + "', deviation.devtype='" + reason_absence +  "'where deviation.deviationid='" + dataGridView1.Rows[e.RowIndex].Cells[3].Value + "'", fb); //задаем запрос на получение данных
                 if (fb.State == ConnectionState.Open)
@@ -171,10 +166,6 @@ namespace SQL
             {
                 MessageBox.Show("Проверьте введенные данные");
             }
-
-
-
-
         }
         
     }
