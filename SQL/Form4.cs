@@ -16,7 +16,7 @@ namespace SQL
     public partial class Form4 : Form
     {
         FbConnection fb;
-        
+        string User_ID = "";
         public Form4()
         {
             InitializeComponent();
@@ -80,7 +80,8 @@ namespace SQL
             dataGridView1.Columns[3].Visible = false;      
             dataGridView1.ReadOnly = true;
             dataGridView1.RowsDefaultCellStyle.BackColor = Color.LightGray;
-            string User_ID = Program.f1.arr_user.Where(o => o.IndexOf(listBox1.SelectedItem.ToString()) != -1).FirstOrDefault()[1];// полчение ID выбранного пользователя(выбор+поиск по массиву пользователей)
+            User_ID = Program.f1.arr_user.Where(o => o.IndexOf(listBox1.SelectedItem.ToString()) != -1).FirstOrDefault()[1];// полчение ID выбранного пользователя(выбор+поиск по массиву пользователей)
+
             var temp = Program.f1.arr_of_deviation.Where(o => o[0] == User_ID).ToList();
 
             for (int i=0; i<temp.Count;i++)
@@ -123,27 +124,44 @@ namespace SQL
 
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (dataGridView1.RowCount-2 == e.RowIndex)
-            {
-                bool temp123 = true;
-
-
-            }
-
-
-
-
-
-
+            string pattern = @"^[0-3]{1}[0-9]{1}.[0-1]{1}[0-9]{1}.[2]{1}[0-1]{1}[0-9]{2}$";//строка дял проверки ввода даты на формат XX.XX.XXXX
 
 
             if (checkBox1.Checked)
             {
-                string pattern = @"^[0-3]{1}[0-9]{1}.[0-1]{1}[0-9]{1}.[2]{1}[0-1]{1}[0-9]{2}$";//строка дял проверки ввода даты на формат XX.XX.XXXX
                 int reason_absence = -1;
                 bool can_run_query = false;
-                
                 method_connect_to_fb(Program.f1.connecting_path);// проверка ввода 
+                if (dataGridView1.RowCount - 2 == e.RowIndex)
+                {
+                    if (dataGridView1.Rows[e.RowIndex].Cells[1].Value==null || dataGridView1.Rows[e.RowIndex].Cells[2].Value==null)
+                    {
+                        dataGridView1.Rows[e.RowIndex].Cells[1].Style.BackColor = Color.Red;
+                    }
+                    else if (dataGridView1.Rows[e.RowIndex].Cells[2].Value == null)
+                    {
+
+                        dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.Red;
+                    }
+                    else
+                    {
+                        dataGridView1.Rows[e.RowIndex].Cells[1].Style.BackColor = Color.White;
+                        dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.White;
+                        FbCommand InsertSQL = new FbCommand("insert into deviation(deviation.peopleid,deviation.devfrom,deviation.devto,deviation.devtype) values('" + User_ID + "','" + dataGridView1.Rows[e.RowIndex].Cells[1].Value + "','" + dataGridView1.Rows[e.RowIndex].Cells[2].Value + "','2')", fb); //задаем запрос на получение данных
+                        if (fb.State == ConnectionState.Open)
+                        {
+                            FbTransaction fbt = fb.BeginTransaction(); //необходимо проинициализить транзакцию для объекта InsertSQL
+                            InsertSQL.Transaction = fbt;
+                            int result = InsertSQL.ExecuteNonQuery();
+                            MessageBox.Show("ВЫполнено" + result);
+                            fbt.Commit();
+                            fbt.Dispose();
+                            InsertSQL.Dispose();
+                        }
+
+                    }                                                                                             
+                }                                              
+
                 if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "больничный")
                 {
                     reason_absence = 0;
