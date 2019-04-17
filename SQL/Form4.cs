@@ -17,7 +17,9 @@ namespace SQL
     {
         FbConnection fb;
         string User_ID = "";
+        string pattern = @"^[0-3]{1}[0-9]{1}.[0-1]{1}[0-9]{1}.[2]{1}[0-1]{1}[0-9]{2}$";//строка дял проверки ввода даты на формат XX.XX.XXXX
         public Form4()
+
         {
             InitializeComponent();
         }
@@ -124,28 +126,40 @@ namespace SQL
 
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            string pattern = @"^[0-3]{1}[0-9]{1}.[0-1]{1}[0-9]{1}.[2]{1}[0-1]{1}[0-9]{2}$";//строка дял проверки ввода даты на формат XX.XX.XXXX
+            
 
 
             if (checkBox1.Checked)
             {
                 int reason_absence = -1;
                 bool can_run_query = false;
+                bool need_to_end_new_line = false;
                 method_connect_to_fb(Program.f1.connecting_path);// проверка ввода 
                 if (dataGridView1.RowCount - 2 == e.RowIndex)
                 {
-                    if (dataGridView1.Rows[e.RowIndex].Cells[1].Value==null || dataGridView1.Rows[e.RowIndex].Cells[2].Value==null)
+                    need_to_end_new_line = true;
+                    label3.Visible = true;
+                    label3.ForeColor = Color.Red;
+                    label3.Text = "Необходимо завершить ввод/изменение причины отсутвия на рабочем месте";
+                    if (!Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern))
                     {
                         dataGridView1.Rows[e.RowIndex].Cells[1].Style.BackColor = Color.Red;
-                    }
-                    else if (dataGridView1.Rows[e.RowIndex].Cells[2].Value == null)
-                    {
-
-                        dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.Red;
                     }
                     else
                     {
                         dataGridView1.Rows[e.RowIndex].Cells[1].Style.BackColor = Color.White;
+                    }
+                    if (!Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[2].Value), pattern))
+                    {
+                        dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.Red;
+                    }
+                    else
+                    {
+                        dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.White;
+                    }
+
+                    if (Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern) && Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[2].Value), pattern))
+                    {
                         dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.White;
                         FbCommand InsertSQL = new FbCommand("insert into deviation(deviation.peopleid,deviation.devfrom,deviation.devto,deviation.devtype) values('" + User_ID + "','" + dataGridView1.Rows[e.RowIndex].Cells[1].Value + "','" + dataGridView1.Rows[e.RowIndex].Cells[2].Value + "','2')", fb); //задаем запрос на получение данных
                         if (fb.State == ConnectionState.Open)
@@ -153,72 +167,79 @@ namespace SQL
                             FbTransaction fbt = fb.BeginTransaction(); //необходимо проинициализить транзакцию для объекта InsertSQL
                             InsertSQL.Transaction = fbt;
                             int result = InsertSQL.ExecuteNonQuery();
-                            MessageBox.Show("ВЫполнено" + result);
+                            MessageBox.Show("Добавление причины отсутвия на рабочем месте выполнено");
                             fbt.Commit();
                             fbt.Dispose();
                             InsertSQL.Dispose();
+                            need_to_end_new_line = false;
+                            label3.Visible = false;
                         }
-
-                    }                                                                                             
-                }                                              
-
-                if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "больничный")
-                {
-                    reason_absence = 0;
-                    can_run_query = true;
-                }
-
-                if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "отпуск")
-                {
-                    reason_absence = 1;
-                    can_run_query = true;
-                }
-                if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "командировка")
-                {
-                    reason_absence = 2;
-                    can_run_query = true;
-                }
-                if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "удаленная работа")
-                {
-                    reason_absence = 3;
-                    can_run_query = true;
-                }
-
-                if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern)) && can_run_query)
-                {
-                    can_run_query = true;
-                }
-                else
-                {
-                    can_run_query = false;
-                }
-
-                if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[2].Value), pattern)) && can_run_query)
-                {
-                    can_run_query = true;
-                }
-                else
-                {
-                    can_run_query = false;
-                }
-
-                if (can_run_query)
-                {
-                    FbCommand InsertSQL = new FbCommand("update deviation set deviation.devfrom='" + dataGridView1.Rows[e.RowIndex].Cells[1].Value + "', deviation.devto='" + dataGridView1.Rows[e.RowIndex].Cells[2].Value + "', deviation.devtype='" + reason_absence + "'where deviation.deviationid='" + dataGridView1.Rows[e.RowIndex].Cells[3].Value + "'", fb); //задаем запрос на получение данных
-                    if (fb.State == ConnectionState.Open)
-                    {
-                        FbTransaction fbt = fb.BeginTransaction(); //необходимо проинициализить транзакцию для объекта InsertSQL
-                        InsertSQL.Transaction = fbt;
-                        int result = InsertSQL.ExecuteNonQuery();
-                        MessageBox.Show("ВЫполнено" + result);
-                        fbt.Commit();
-                        fbt.Dispose();
-                        InsertSQL.Dispose();
                     }
                 }
-                else
+                else if (need_to_end_new_line)
                 {
-                    MessageBox.Show("Проверьте введенные данные");
+                    label3.Visible = true;
+                    label3.ForeColor = Color.Red;
+                    label3.Text = "Необходимо завершить ввод/изменение причины отсутвия на рабочем месте";
+                    if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "больничный")
+                    {
+                        reason_absence = 0;
+                        can_run_query = true;
+                    }
+
+                    if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "отпуск")
+                    {
+                        reason_absence = 1;
+                        can_run_query = true;
+                    }
+                    if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "командировка")
+                    {
+                        reason_absence = 2;
+                        can_run_query = true;
+                    }
+                    if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "удаленная работа")
+                    {
+                        reason_absence = 3;
+                        can_run_query = true;
+                    }
+
+                    if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern)) && can_run_query)
+                    {
+                        can_run_query = true;
+                        dataGridView1.Rows[e.RowIndex].Cells[1].Style.BackColor = Color.White;
+                    }
+                    else
+                    {
+                        can_run_query = false;
+                        dataGridView1.Rows[e.RowIndex].Cells[1].Style.BackColor = Color.Red;
+                    }
+
+                    if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[2].Value), pattern)) && can_run_query)
+                    {
+                        can_run_query = true;
+                        dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.White;
+                    }
+                    else
+                    {
+                        can_run_query = false;
+                        dataGridView1.Rows[e.RowIndex].Cells[2].Style.BackColor = Color.Red;
+                    }
+
+                    if (can_run_query)
+                    {
+                        FbCommand InsertSQL = new FbCommand("update deviation set deviation.devfrom='" + dataGridView1.Rows[e.RowIndex].Cells[1].Value + "', deviation.devto='" + dataGridView1.Rows[e.RowIndex].Cells[2].Value + "', deviation.devtype='" + reason_absence + "'where deviation.deviationid='" + dataGridView1.Rows[e.RowIndex].Cells[3].Value + "'", fb); //задаем запрос на получение данных
+                        if (fb.State == ConnectionState.Open)
+                        {
+                            FbTransaction fbt = fb.BeginTransaction(); //необходимо проинициализить транзакцию для объекта InsertSQL
+                            InsertSQL.Transaction = fbt;
+                            int result = InsertSQL.ExecuteNonQuery();
+                            MessageBox.Show("Изменение причины отсутвия на рабочем месте выполнено");
+                            fbt.Commit();
+                            fbt.Dispose();
+                            InsertSQL.Dispose();
+                            label3.Visible = false;
+                        }
+                    }
                 }
             }
         }
