@@ -13,6 +13,7 @@ using System.IO;
 using Excel = Microsoft.Office.Interop.Excel;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using System.Text.RegularExpressions;
 
 namespace SQL
 {
@@ -40,20 +41,19 @@ namespace SQL
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
         TimeSpan hour = new TimeSpan(1, 0, 0);
         public string connecting_path;
-
-
-
+        string dev_name = "Galyamov Oleg";
+                              
         //------
         public Form1()
         {
             InitializeComponent();
-            Program.f1 = this;
+            Program.f1 = this;            
         }
 
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            
         }
 
 
@@ -402,10 +402,6 @@ namespace SQL
             var bin = excelFile.GetAsByteArray();
             File.WriteAllBytes(@"Отчет_за_" + date_to_request + ".xlsx", bin);
         }
- 
-               
-
-
 
         public void method_of_deviation(ref List<List<string>> arr_out )//отпуск командировка 0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
         {
@@ -536,6 +532,12 @@ namespace SQL
         {
             Form4 fr4 = new Form4();
             fr4.Show();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+
+            //Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern)
         }
     }
 }
