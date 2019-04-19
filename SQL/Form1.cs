@@ -536,8 +536,44 @@ namespace SQL
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            /*Random rnd = new Random();
+            string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
+            string letters_temp = letters;
+            string find_dev_name = "";
+            for (int i=0; i<dev_name.Length;)
+            {                
+                int value_rnd = rnd.Next(0, letters_temp.Length);
+                string letter_temp = Convert.ToString(letters_temp[value_rnd]);
+                if (Regex.IsMatch(Convert.ToString(letter_temp), Convert.ToString(dev_name[i])))
+                {
+                    i++;
+                    find_dev_name += letter_temp;
+                    letters_temp = letters;
+                    label7.Text = find_dev_name;
+                }                
+                else
+                {
+                    if (letters_temp.Length > 0)
+                    {
+                        find_dev_name += letter_temp;                                              
+                        label7.Text = find_dev_name;
+                        timer1.Stop();
+                        timer1.Start();
+                        find_dev_name = find_dev_name.Remove(find_dev_name.Length - 1, 1);
+                        letters_temp = letters_temp.Remove(value_rnd, 1);
+                        there
+                        
+                    }
+                    else { i++; }
+                }
+            }
+            if (Regex.IsMatch(Convert.ToString(dev_name), Convert.ToString(dev_name)))
+            {
+                timer1.Enabled = false;
+            }*/
 
-            //Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern)
+
         }
+
     }
 }
