@@ -14,6 +14,8 @@ using Excel = Microsoft.Office.Interop.Excel;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Timers;
 
 namespace SQL
 {
@@ -41,7 +43,6 @@ namespace SQL
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
         TimeSpan hour = new TimeSpan(1, 0, 0);
         public string connecting_path;
-        string dev_name = "Galyamov Oleg";
                               
         //------
         public Form1()
@@ -56,7 +57,7 @@ namespace SQL
             
         }
 
-
+    
         //методы
         public string method_connection_string (TextBox Text_Path, TextBox Text_user, TextBox Text_pass)
         {
@@ -487,6 +488,7 @@ namespace SQL
                 method_arr_of_events(date_to_request, ref arr_events);//формируем массив сообытий
                 method_of_end_arr(arr_events, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
                 method_arr_to_grid(arr_of_work, ref dataGridView3);//выводим массив в датагрид
+                button3.Enabled = true;
             }
             catch (Exception r)
             {
@@ -534,46 +536,10 @@ namespace SQL
             fr4.Show();
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+ 
+        private void button5_Click(object sender, EventArgs e)
         {
-            /*Random rnd = new Random();
-            string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
-            string letters_temp = letters;
-            string find_dev_name = "";
-            for (int i=0; i<dev_name.Length;)
-            {                
-                int value_rnd = rnd.Next(0, letters_temp.Length);
-                string letter_temp = Convert.ToString(letters_temp[value_rnd]);
-                if (Regex.IsMatch(Convert.ToString(letter_temp), Convert.ToString(dev_name[i])))
-                {
-                    i++;
-                    find_dev_name += letter_temp;
-                    letters_temp = letters;
-                    label7.Text = find_dev_name;
-                }                
-                else
-                {
-                    if (letters_temp.Length > 0)
-                    {
-                        find_dev_name += letter_temp;                                              
-                        label7.Text = find_dev_name;
-                        timer1.Stop();
-                        timer1.Start();
-                        find_dev_name = find_dev_name.Remove(find_dev_name.Length - 1, 1);
-                        letters_temp = letters_temp.Remove(value_rnd, 1);
-                        there
-                        
-                    }
-                    else { i++; }
-                }
-            }
-            if (Regex.IsMatch(Convert.ToString(dev_name), Convert.ToString(dev_name)))
-            {
-                timer1.Enabled = false;
-            }*/
-
-
+            //Program.PropsFields.;
         }
-
     }
 }
