@@ -49,8 +49,11 @@ namespace SQL
         }
 
 
-        public void method_DataGridDeviation(ref CheckBox checkbox_in, ref DataGridView datagrid_of_dev)
+        public void method_DataGridDeviation(bool need_to_lock ,ref CheckBox checkbox_in, ref DataGridView datagrid_of_dev)//данные с массивов пока что забираются в ручную
         {
+
+            datagrid_of_dev.ReadOnly = true;
+            datagrid_of_dev.RowsDefaultCellStyle.BackColor = Color.LightGray;
             checkbox_in.Checked = false;
             datagrid_of_dev.Columns.Clear();
             DataGridViewComboBoxColumn boxcolum = new DataGridViewComboBoxColumn();
@@ -67,9 +70,7 @@ namespace SQL
             datagrid_of_dev.Columns[2].Width = 90;
             datagrid_of_dev.Columns[2].HeaderText = "Конечная дата";
             datagrid_of_dev.Columns[3].Width = 10;
-            datagrid_of_dev.Columns[3].Visible = true;
-            datagrid_of_dev.ReadOnly = true;
-            datagrid_of_dev.RowsDefaultCellStyle.BackColor = Color.LightGray;
+            datagrid_of_dev.Columns[3].Visible = false;
             User_ID = Program.f1.arr_user.Where(o => o.IndexOf(listBox1.SelectedItem.ToString()) != -1).FirstOrDefault()[1];// полчение ID выбранного пользователя(выбор+поиск по массиву пользователей)
             var temp = Program.f1.arr_of_deviation.Where(o => o[0] == User_ID).ToList();
 
@@ -95,6 +96,13 @@ namespace SQL
                 datagrid_of_dev.Rows[i].Cells[1].Value = temp[i][2];
                 datagrid_of_dev.Rows[i].Cells[2].Value = temp[i][3];
                 datagrid_of_dev.Rows[i].Cells[3].Value = temp[i][4];
+            }
+
+            if (need_to_lock == true)
+            {
+                datagrid_of_dev.ReadOnly = true;
+                datagrid_of_dev.RowsDefaultCellStyle.BackColor = Color.LightGray;
+
             }
         }
 
@@ -151,7 +159,7 @@ namespace SQL
             
              */
 
-            method_DataGridDeviation(ref checkBox1,ref dataGridView1);
+            method_DataGridDeviation(true,ref checkBox1,ref dataGridView1);
         }
 
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -248,6 +256,7 @@ namespace SQL
                             }
                             checkBox1.Enabled = true;
                             Program.f1.method_of_deviation(ref Program.f1.arr_of_deviation);
+                            method_DataGridDeviation(false, ref checkBox1, ref dataGridView1);
                         }
                     }
                 }
@@ -333,6 +342,7 @@ namespace SQL
                             }
                             checkBox1.Enabled = true;
                             Program.f1.method_of_deviation(ref Program.f1.arr_of_deviation);
+                            method_DataGridDeviation(false, ref checkBox1, ref dataGridView1);
                         }
                     }
                 }
