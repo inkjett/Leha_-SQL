@@ -478,7 +478,7 @@ namespace SQL
                 List<string> row = new List<string>();          
                 arr_out = new List<List<string>>();
                 row = new List<string>();
-                for (int d=1;d<day_end;d++)
+                for (int d=1;d<=day_end;d++)
                 {
                     Int32 temp_arr_lenth = arr_out.Count;
                     if (fb.State == ConnectionState.Open)
@@ -564,73 +564,75 @@ namespace SQL
                     {
                         arr_out[0].Add(Convert.ToString(new DateTime(current_year, current_mount, t+1).ToShortDateString()));                        
                     }
-                    for (int d=1;d<30;d++)
+
+                    for (int i = 0; i < arr_user_in.Count; i++)// формирование массива отработанного времени 
                     {
-                        for (int i = 0; i < arr_user_in.Count; i++)// формирование массива отработанного времени 
-                        {                           
-                            row = new List<string>();
-                            arr_out.Add(row);
-                            arr_out[i].Add("");
-                            arr_out[i].Add("");
-                            arr_out[i].Add("");
-                            arr_out[i][0] = arr_user_in[i][1];
-                            arr_out[i][1] = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).ToShortDateString();
+                        row = new List<string>();
+                        arr_out.Add(row);
+                        for (int t = 0; t < last_day; t++)//ячейки по кличетсву дней
+                        {
+                            arr_out[i + 1].Add("");
+                        }
+                        for (int d = 1; d < last_day; d++)
+                        {
+                            DateTime to_work = new DateTime(2000, 1, 1);
+                            DateTime from_work = new DateTime(2000, 1, 1);
+                            TimeSpan time_in_work;
+                            bool find_to_work = false;
+                            bool find_from_work = false;
+                            arr_out[i + 1][0] = arr_user_in[i][0];//имя пользователя в ячейку
                             for (int ii = 0; ii < arr_events_in.Count; ii++)// начало и конец рабочего дня 
                             {
-                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3))
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
                                 {
-                                    //to_work = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+                                    to_work = (DateTime.Parse(arr_events_in[ii][0]));
+                                    arr_events_in.RemoveAt(ii);
+                                    find_to_work = true;
                                 }
-                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13))
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
                                 {
-                                    arr_out[i][2] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
-
+                                    from_work = (DateTime.Parse(arr_events_in[ii][0]));
+                                    arr_events_in.RemoveAt(ii);
+                                    find_from_work = true;
                                 }
-                            }
-                        }
-                        for (int i = 0; i < arr_out.Count; i++)//вычисление столбца отработанного времени(8 часов)
-                        {
-
-                            if ((arr_out[i][1] != "") && (arr_out[i][2] != ""))
-                            {
-                                DateTime start = DateTime.Parse(arr_out[i][1]);
-                                DateTime end = DateTime.Parse(arr_out[i][2]);
-                                if (end >= start)
+                                if (find_to_work && find_from_work)
                                 {
-                                    arr_out[i][3] = Convert.ToString(end - start - hour);
+                                    time_in_work = from_work.Subtract(to_work)- hour;
+                                    arr_out[i+1][d] = Convert.ToString(time_in_work);
                                 }
-                            }
-                        }
-                        for (int ii = 0; ii < arr_out.Count; ii++)//0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
-                        {
-                            for (int iii = 0; iii < arr_of_deviation_in.Count; iii++)
-                            {
-                                if (arr_out[ii][5] == arr_of_deviation_in[iii][0])
-                                {
-                                    if (((DateTime.Parse(arr_of_deviation_in[iii][2]) <= DateTime.Parse(date_to_request)) && (DateTime.Parse(date_to_request) <= DateTime.Parse(arr_of_deviation_in[iii][3]))))//проверка на командировку отпуск итд
-                                    {
-                                        arr_out[ii][4] = arr_of_deviation_in[iii][1];
-                                        switch (Convert.ToInt16(arr_out[ii][4]))
-                                        {
-                                            case 0:
-                                                arr_out[ii][4] = "больничный";
-                                                break;
-                                            case 1:
-                                                arr_out[ii][4] = "отпуск";
-                                                break;
-                                            case 2:
-                                                arr_out[ii][4] = "командировка";
-                                                break;
-                                            case 3:
-                                                arr_out[ii][4] = "удаленная работа";
-                                                break;
-                                        }
-                                    }
-                                }
-
                             }
                         }
                     }
+                    /*for (int ii = 0; ii < arr_out.Count; ii++)//0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
+                    {
+                        for (int iii = 0; iii < arr_of_deviation_in.Count; iii++)
+                        {
+                            if (arr_out[ii][5] == arr_of_deviation_in[iii][0])
+                            {
+                                if (((DateTime.Parse(arr_of_deviation_in[iii][2]) <= DateTime.Parse(date_to_request)) && (DateTime.Parse(date_to_request) <= DateTime.Parse(arr_of_deviation_in[iii][3]))))//проверка на командировку отпуск итд
+                                {
+                                    arr_out[ii][4] = arr_of_deviation_in[iii][1];
+                                    switch (Convert.ToInt16(arr_out[ii][4]))
+                                    {
+                                        case 0:
+                                            arr_out[ii][4] = "больничный";
+                                            break;
+                                        case 1:
+                                            arr_out[ii][4] = "отпуск";
+                                            break;
+                                        case 2:
+                                            arr_out[ii][4] = "командировка";
+                                            break;
+                                        case 3:
+                                            arr_out[ii][4] = "удаленная работа";
+                                            break;
+                                    }
+                                }
+                            }
+
+                        }
+                    }*/
+                    
 
                 }
                 catch (Exception e)
@@ -639,24 +641,7 @@ namespace SQL
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 
