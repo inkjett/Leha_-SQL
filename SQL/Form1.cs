@@ -32,6 +32,7 @@ namespace SQL
         public Excel.Range excelcells;
         public List<List<string>> arr_user;
         List<List<string>> arr_events;
+        List<List<string>> arr_events_per_mounth;
         List<List<string>> arr_of_work;
         public List<List<string>> arr_of_deviation;  
         string date_to_request = "0";
@@ -463,6 +464,98 @@ namespace SQL
 
         }
 
+
+
+
+
+        //метод формирования массива о отработанном времени в месяц
+        public void method_arr_of_events_mounth(Int32 day_end, Int32 current_mounth, Int32 current_year,ref List<List<string>> arr_out)
+        {
+            try
+            {
+
+                bool start_bool = true;
+                List<string> row = new List<string>();          
+                arr_out = new List<List<string>>();
+                row = new List<string>();
+                for (int d=1;d<day_end;d++)
+                {
+                    Int32 temp_arr_lenth = arr_out.Count;
+                    if (fb.State == ConnectionState.Open)
+                    {
+                        int i = 0, j = 0;
+                        FbTransaction fbt = fb.BeginTransaction();
+                        FbCommand SelectSQL = new FbCommand("SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + d +"." + current_mounth + "." + current_year + " 00:00:00' AND events.eventsdate <= '" + d + "." + current_mounth + "." + current_year + " 23:59:59'", fb); //задаем запрос на выборку
+                        SelectSQL.Transaction = fbt;
+                        FbDataReader reader = SelectSQL.ExecuteReader();
+                        Int32 temp = reader.FieldCount;
+                        try
+                        {
+                            while (reader.Read()) //пока не прочли все данные выполняем...
+                            {
+                                row = new List<string>();
+                                arr_out.Add(row);
+                                arr_out[i+ temp_arr_lenth].Add("");
+                                arr_out[i+ temp_arr_lenth].Add("");
+                                arr_out[i+ temp_arr_lenth].Add("");
+                                arr_out[i+ temp_arr_lenth][j] = reader.GetString(0).ToString();//добавиои время
+                                arr_out[i+ temp_arr_lenth][j + 1] = reader.GetString(1).ToString();// добавили id ключа
+                                arr_out[i+ temp_arr_lenth][j + 2] = reader.GetString(2).ToString();//добавили id эвента
+                                for (int ii = temp_arr_lenth; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
+                                {
+                                    if ((arr_out[ii][1] == arr_out[i][1]) && (arr_out[ii][2] == arr_out[i][2]))//проверка на уже существующее ID 
+                                    {
+                                        if (Convert.ToInt32(arr_out[i][2]) == 3)// проверка на сощуствующий эвент 3-вход 13-выход
+                                        {
+                                            if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            {
+                                                arr_out[ii][0] = arr_out[i][0];
+                                            }
+                                        }
+                                        if (Convert.ToInt32(arr_out[i][2]) == 13)// провоека на сощуствующий эвент 3-вход 13-выход
+                                        {
+                                            if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            {
+                                                arr_out[ii][0] = arr_out[i][0];
+                                            }
+                                        }
+                                        arr_out.Remove(row);
+                                        i--;
+                                    }
+                                }
+                                i++;
+                                start_bool = false;
+                            }
+                        }
+                        finally
+                        {
+                            //всегда необходимо вызывать метод Close(), когда чтение данных завершено
+                            reader.Close();
+                            fbt.Dispose();
+                            //fb.Close(); //закрываем соединение, т.к. оно нам больше не нужно
+                        }
+                        SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Сообщение", MessageBoxButtons.OK);
+            }
+
+        }
+
+        //метод формирования масива об отработанном времени в течении месяца
+
+
+
+
+
+
+
+
+
+
         //-------------
 
 
@@ -540,6 +633,36 @@ namespace SQL
         private void button5_Click(object sender, EventArgs e)
         {
             //Program.PropsFields.;
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            dateTimePicker1.CustomFormat = "MM.yyyy";
+            dateTimePicker1.Format = DateTimePickerFormat.Custom;
+            string temp = Convert.ToString(dateTimePicker1.Value);            
+            temp = temp.Remove(0, 3);
+            temp = temp.Substring(0,7);
+            Int32 mounth = Convert.ToInt16(temp.Substring(0, 2));
+            Int32 year = Convert.ToInt16(temp.Remove(0, 3));
+            Int32 day_in_mounth = DateTime.DaysInMonth(year,mounth);            
+            connecting_path = method_connection_string(textBox1, textBox2, textBox3);
+            method_connect_to_fb(connecting_path, ref label5);// подключаемся к БД
+            method_arr_of_users(ref arr_user);//фомируем массив пользователей
+            method_of_deviation(ref arr_of_deviation);//формируем массив отпусков командировок итд
+            method_arr_of_events_mounth(day_in_mounth, mounth, year, ref arr_events_per_mounth);//формируем массив отработок за месяц
+
+            method_of_end_arr(arr_events_per_mounth, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
+            method_arr_to_grid(arr_of_work, ref dataGridView3);//выводим массив в датагрид
+
+
+
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            dateTimePicker1.CustomFormat = "dd.MM.yyyy";
+            dateTimePicker1.Format = DateTimePickerFormat.Custom;
+            label7.Text = Convert.ToString(dateTimePicker1.Value);
         }
     }
 }
