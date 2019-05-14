@@ -503,27 +503,27 @@ namespace SQL
                                 arr_out[i+ temp_arr_lenth][j + 2] = reader.GetString(2).ToString();//добавили id эвента
                                 for (int ii = temp_arr_lenth; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
                                 {
-                                    if ((arr_out[ii][1] == arr_out[i][1]) && (arr_out[ii][2] == arr_out[i][2]))//проверка на уже существующее ID 
+                                    if ((arr_out[ii][1] == arr_out[i+ temp_arr_lenth][1]) && (arr_out[ii][2] == arr_out[i+ temp_arr_lenth][2]))//проверка на уже существующее ID 
                                     {
-                                        if (Convert.ToInt32(arr_out[i][2]) == 3)// проверка на сощуствующий эвент 3-вход 13-выход
+                                        if (Convert.ToInt32(arr_out[i+ temp_arr_lenth][2]) == 3)// проверка на сощуствующий эвент 3-вход 13-выход
                                         {
-                                            if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i+ temp_arr_lenth][0])) // проверка на время
                                             {
-                                                arr_out[ii][0] = arr_out[i][0];
+                                                arr_out[ii][0] = arr_out[i+ temp_arr_lenth][0];
                                             }
                                         }
-                                        if (Convert.ToInt32(arr_out[i][2]) == 13)// провоека на сощуствующий эвент 3-вход 13-выход
+                                        if (Convert.ToInt32(arr_out[i+ temp_arr_lenth][2]) == 13)// провоека на сощуствующий эвент 3-вход 13-выход
                                         {
-                                            if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i+ temp_arr_lenth][0])) // проверка на время
                                             {
-                                                arr_out[ii][0] = arr_out[i][0];
+                                                arr_out[ii][0] = arr_out[i+ temp_arr_lenth][0];
                                             }
                                         }
                                         arr_out.Remove(row);
                                         i--;
                                     }
                                 }
-                                i++;
+                                i++;                              
                                 start_bool = false;
                             }
                         }
@@ -546,6 +546,113 @@ namespace SQL
         }
 
         //метод формирования масива об отработанном времени в течении месяца
+               
+        public void method_of_end_arr_mounth(List<List<string>> arr_events_in, List<List<string>> arr_user_in, List<List<string>> arr_of_deviation_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
+        {        
+            Int32 last_day = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Day;
+            Int32 current_year = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Year;
+            Int32 current_mount = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Month;
+            if (data_is_read == true)
+            {
+                try
+                {
+                    List<string> row = new List<string>();
+                    arr_out = new List<List<string>>();
+                    row = new List<string>();
+                    arr_out.Add(row);
+                    for (int t=0; t<last_day;t++ )
+                    {
+                        arr_out[0].Add(Convert.ToString(new DateTime(current_year, current_mount, t+1).ToShortDateString()));                        
+                    }
+                    for (int d=1;d<30;d++)
+                    {
+                        for (int i = 0; i < arr_user_in.Count; i++)// формирование массива отработанного времени 
+                        {                           
+                            row = new List<string>();
+                            arr_out.Add(row);
+                            arr_out[i].Add("");
+                            arr_out[i].Add("");
+                            arr_out[i].Add("");
+                            arr_out[i][0] = arr_user_in[i][1];
+                            arr_out[i][1] = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).ToShortDateString();
+                            for (int ii = 0; ii < arr_events_in.Count; ii++)// начало и конец рабочего дня 
+                            {
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3))
+                                {
+                                    //to_work = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+                                }
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13))
+                                {
+                                    arr_out[i][2] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+
+                                }
+                            }
+                        }
+                        for (int i = 0; i < arr_out.Count; i++)//вычисление столбца отработанного времени(8 часов)
+                        {
+
+                            if ((arr_out[i][1] != "") && (arr_out[i][2] != ""))
+                            {
+                                DateTime start = DateTime.Parse(arr_out[i][1]);
+                                DateTime end = DateTime.Parse(arr_out[i][2]);
+                                if (end >= start)
+                                {
+                                    arr_out[i][3] = Convert.ToString(end - start - hour);
+                                }
+                            }
+                        }
+                        for (int ii = 0; ii < arr_out.Count; ii++)//0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
+                        {
+                            for (int iii = 0; iii < arr_of_deviation_in.Count; iii++)
+                            {
+                                if (arr_out[ii][5] == arr_of_deviation_in[iii][0])
+                                {
+                                    if (((DateTime.Parse(arr_of_deviation_in[iii][2]) <= DateTime.Parse(date_to_request)) && (DateTime.Parse(date_to_request) <= DateTime.Parse(arr_of_deviation_in[iii][3]))))//проверка на командировку отпуск итд
+                                    {
+                                        arr_out[ii][4] = arr_of_deviation_in[iii][1];
+                                        switch (Convert.ToInt16(arr_out[ii][4]))
+                                        {
+                                            case 0:
+                                                arr_out[ii][4] = "больничный";
+                                                break;
+                                            case 1:
+                                                arr_out[ii][4] = "отпуск";
+                                                break;
+                                            case 2:
+                                                arr_out[ii][4] = "командировка";
+                                                break;
+                                            case 3:
+                                                arr_out[ii][4] = "удаленная работа";
+                                                break;
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message, "Сообщение", MessageBoxButtons.OK);
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -639,19 +746,16 @@ namespace SQL
         {
             dateTimePicker1.CustomFormat = "MM.yyyy";
             dateTimePicker1.Format = DateTimePickerFormat.Custom;
-            string temp = Convert.ToString(dateTimePicker1.Value);            
-            temp = temp.Remove(0, 3);
-            temp = temp.Substring(0,7);
-            Int32 mounth = Convert.ToInt16(temp.Substring(0, 2));
-            Int32 year = Convert.ToInt16(temp.Remove(0, 3));
-            Int32 day_in_mounth = DateTime.DaysInMonth(year,mounth);            
+            Int32 month = DateTime.Parse(Convert.ToString(dateTimePicker1.Value)).Month;
+            Int32 year = DateTime.Parse(Convert.ToString(dateTimePicker1.Value)).Year;
+            Int32 day_in_mounth = DateTime.DaysInMonth(year, month);            
             connecting_path = method_connection_string(textBox1, textBox2, textBox3);
             method_connect_to_fb(connecting_path, ref label5);// подключаемся к БД
             method_arr_of_users(ref arr_user);//фомируем массив пользователей
             method_of_deviation(ref arr_of_deviation);//формируем массив отпусков командировок итд
-            method_arr_of_events_mounth(day_in_mounth, mounth, year, ref arr_events_per_mounth);//формируем массив отработок за месяц
+            method_arr_of_events_mounth(day_in_mounth, month, year, ref arr_events_per_mounth);//формируем массив отработок за месяц
 
-            method_of_end_arr(arr_events_per_mounth, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
+            method_of_end_arr_mounth(arr_events_per_mounth, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
             method_arr_to_grid(arr_of_work, ref dataGridView3);//выводим массив в датагрид
 
 
