@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using FirebirdSql.Data.FirebirdClient;
 using System.Collections;
 using System.IO;
-using Excel = Microsoft.Office.Interop.Excel;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Text.RegularExpressions;
@@ -24,12 +23,6 @@ namespace SQL
 
         //описание переменных
         FbConnection fb;
-        public Excel.Application excelapp;
-        public Excel.Worksheet excelworksheet;
-        public Excel.Workbooks excelappworkbooks;
-        public Excel.Workbook excelappworkbook;
-        public Excel.Sheets excelsheets;
-        public Excel.Range excelcells;
         public List<List<string>> arr_user;
         List<List<string>> arr_events;
         List<List<string>> arr_events_per_mounth;
@@ -646,7 +639,7 @@ namespace SQL
                                                 dev_string = "удаленная работа";
                                                 break;
                                         }
-                                        arr_out[ii][d+2] = arr_out[ii][d+2] + "("+dev_string+")";
+                                        arr_out[ii][d+2] = arr_out[ii][d+2] + " ("+dev_string+")";
                                     }
                                 }
                             }
@@ -698,12 +691,63 @@ namespace SQL
         {
             var excelFile = new ExcelPackage();
             var sheet = excelFile.Workbook.Worksheets.Add("Отчет отработанного времени в месяц");
-
-            sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + date_to_request;
+            int day_count = DateTime.Parse(arr_in[0].Last()).Day;
+            string mounth_string="";
+            switch (DateTime.Parse(arr_in[0].Last()).Month)
+            {
+                case 1:
+                    mounth_string = "январь";
+                    break;
+                case 2:
+                    mounth_string = "февраль";
+                    break;
+                case 3:
+                    mounth_string = "март";
+                    break;
+                case 4:
+                    mounth_string = "апрель";
+                    break;
+                case 5:
+                    mounth_string = "май";
+                    break;
+                case 6:
+                    mounth_string = "июнь";
+                    break;
+                case 7:
+                    mounth_string = "июль";
+                    break;
+                case 8:
+                    mounth_string = "август";
+                    break;
+                case 9:
+                    mounth_string = "сентябрь";
+                    break;
+                case 10:
+                    mounth_string = "октябрь";
+                    break;
+                case 11:
+                    mounth_string = "ноябрь";
+                    break;
+                case 12:
+                    mounth_string = "декабрь";
+                    break;
+            }
+            for (int s = 1; s < day_count; s++)
+            {
+                sheet.Column(s + 2).Width = 16;
+                sheet.Column(s + 2).Style.WrapText = true;
+            }
+            sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + mounth_string + " "+ DateTime.Parse(arr_in[0].Last()).Year;
             sheet.Cells[1, 1].Style.Font.Bold = true;
-            sheet.Cells[1, 1].Style.Font.Size = 16;
-            sheet.Cells["A1:F1"].Merge = true;
+            sheet.Cells[1, 1].Style.Font.Size = 15;
+            sheet.Cells["A1:G1"].Merge = true;
             sheet.Column(1).Width = 5;
+            sheet.Column(2).Width = 40;
+
+
+            
+            
+            /*sheet.Column(1).Width = 5;
             sheet.Column(2).Width = 45;
             sheet.Column(3).Width = 14;
             sheet.Column(4).Width = 14;
@@ -714,16 +758,16 @@ namespace SQL
             sheet.Cells[2, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells[2, 2].Value = "Фамилия Имя Отчество";
             sheet.Cells[2, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;*/
 
             for (int i = 0; i < arr_in.Count; i++)
             {
-                sheet.Cells[i + 3, 1].Value = i + 1;
-                sheet.Cells[i + 3, 2].Value = arr_in[i][0];
-                sheet.Cells[i + 3, 3].Value = arr_in[i][1];
-                sheet.Cells[i + 3, 4].Value = arr_in[i][2];
-                sheet.Cells[i + 3, 5].Value = arr_in[i][3];
-                sheet.Cells[i + 3, 6].Value = arr_in[i][4];
+                for(int j=0; j< day_count;j++)
+                {
+                    sheet.Cells[i + 3, 1].Value = i + 1;
+                    sheet.Cells[i + 3, j+1].Value = arr_in[i][j];
+                }
+
             }
 
             using (var cells = sheet.Cells[sheet.Dimension.Address])
@@ -816,14 +860,31 @@ namespace SQL
 
         private void button1_Click(object sender, EventArgs e)
         {
-            try
+            if (radioButton1.Checked)
             {
-                method_arr_to_excel_eppuls(arr_of_work);
+                try
+                {
+                    method_arr_to_excel_eppuls(arr_of_work);
+                }
+                catch (Exception r)
+                {
+                    MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
+                }
+
             }
-            catch (Exception r)
+            else
             {
-                MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
+                try
+                {
+                    method_arr_to_excel_mounth_eppuls(arr_of_work);
+                }
+                catch (Exception r)
+                {
+                    MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
+                }
+
             }
+
 
         }
 
