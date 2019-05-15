@@ -734,19 +734,19 @@ namespace SQL
             }
             for (int s = 1; s < day_count; s++)
             {
-                sheet.Column(s + 2).Width = 16;
+                sheet.Column(s + 2).Width = 11;
                 sheet.Column(s + 2).Style.WrapText = true;
             }
-            sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + mounth_string + " "+ DateTime.Parse(arr_in[0].Last()).Year;
+            sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + mounth_string + " " + DateTime.Parse(arr_in[0].Last()).Year;
             sheet.Cells[1, 1].Style.Font.Bold = true;
             sheet.Cells[1, 1].Style.Font.Size = 15;
             sheet.Cells["A1:G1"].Merge = true;
             sheet.Column(1).Width = 5;
-            sheet.Column(2).Width = 40;
+            sheet.Column(2).Width = 37;
 
 
-            
-            
+
+
             /*sheet.Column(1).Width = 5;
             sheet.Column(2).Width = 45;
             sheet.Column(3).Width = 14;
@@ -760,15 +760,22 @@ namespace SQL
             sheet.Cells[2, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;*/
 
-            for (int i = 0; i < arr_in.Count; i++)
-            {
-                for(int j=0; j< day_count;j++)
-                {
-                    sheet.Cells[i + 3, 1].Value = i + 1;
-                    sheet.Cells[i + 3, j+1].Value = arr_in[i][j];
-                }
 
+            for (int i = 0; i < arr_in.Count-1; i++)//генерация нумерации
+            {
+                sheet.Cells[i + 3, 1].Value = i + 1;
             }
+            for (int i = 0; i < arr_in.Count; i++)//генерация данных экселя
+            {
+                for (var j=0; j< day_count;j++)
+                {
+                    sheet.Cells[i + 2, j+2].Value = arr_in[i][j+1];
+                }
+            }
+
+            sheet.Cells[2, 2].Value = "Фамилия Имя Отчество";
+            sheet.Cells[2, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
             using (var cells = sheet.Cells[sheet.Dimension.Address])
             {

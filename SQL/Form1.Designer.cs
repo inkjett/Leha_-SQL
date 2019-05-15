@@ -49,7 +49,6 @@
             this.label6 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).BeginInit();
@@ -230,15 +229,6 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(197, 438);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(75, 23);
-            this.button6.TabIndex = 28;
-            this.button6.Text = "button6";
-            this.button6.UseVisualStyleBackColor = true;
-            // 
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
@@ -270,7 +260,6 @@
             this.ClientSize = new System.Drawing.Size(640, 473);
             this.Controls.Add(this.radioButton2);
             this.Controls.Add(this.radioButton1);
-            this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label6);
@@ -320,7 +309,6 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.RadioButton radioButton2;
     }
