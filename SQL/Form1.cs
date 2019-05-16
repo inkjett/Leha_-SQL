@@ -582,20 +582,33 @@ namespace SQL
                             TimeSpan time_in_work;
                             bool find_to_work = false;
                             bool find_from_work = false;
+
+
+
+
                             arr_out[i+1][0] = arr_user_in[i][1];//ID пользователя в ячейку
                             arr_out[i+1][1] = arr_user_in[i][0];//Имя пользователя в ячейку
                             for (int ii = 0; ii < arr_events_in.Count; ii++)// начало и конец рабочего дня 
                             {
+                                bool first_was_found = false;
+                                var temp_arr_user_in = arr_user_in[i][2];
+                                var temp_arr_events_in_d = DateTime.Parse(arr_events_in[ii][0]).Day;
+                                var temp_day = DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0]);
+                                var temp_arr_events_in_1 = arr_events_in[ii][1];
+                                var temp_arr_events_in_2 = arr_events_in[ii][2];
+
                                 if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
                                 {
                                     to_work = (DateTime.Parse(arr_events_in[ii][0]));
                                     arr_events_in.RemoveAt(ii);
+                                    first_was_found = true;
                                     find_to_work = true;
+                                    ii = 0;
                                 }
-                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && (DateTime.Parse(arr_events_in[ii][0]).Day == d) && first_was_found)
                                 {
                                     from_work = (DateTime.Parse(arr_events_in[ii][0]));
-                                    arr_events_in.RemoveAt(ii);
+                                    arr_events_in.RemoveAt(ii);                                    
                                     find_from_work = true;
                                 }
                                 if (find_to_work && find_from_work)// если время на работе больше 4 часов то 1 час отнимаем если нет то не отнимаем 
