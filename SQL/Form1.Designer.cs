@@ -48,7 +48,6 @@
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).BeginInit();
@@ -169,6 +168,7 @@
             // 
             // button1
             // 
+            this.button1.Enabled = false;
             this.button1.Location = new System.Drawing.Point(12, 223);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(100, 40);
@@ -219,16 +219,6 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click_1);
             // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(282, 444);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(164, 23);
-            this.button5.TabIndex = 27;
-            this.button5.Text = "Сохранить настройки";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
             // radioButton1
             // 
             this.radioButton1.AutoSize = true;
@@ -260,7 +250,6 @@
             this.ClientSize = new System.Drawing.Size(640, 473);
             this.Controls.Add(this.radioButton2);
             this.Controls.Add(this.radioButton1);
-            this.Controls.Add(this.button5);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.textBox4);
@@ -278,6 +267,7 @@
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.textBox1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Form1";
             this.Text = "Формирования отчетов о времени прихода и ухода с рабочего места";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -308,7 +298,6 @@
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button5;
         private System.Windows.Forms.RadioButton radioButton1;
         private System.Windows.Forms.RadioButton radioButton2;
     }

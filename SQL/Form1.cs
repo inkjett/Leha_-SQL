@@ -222,6 +222,7 @@ namespace SQL
                     {
                         Grid_out.RowCount = arr_in.Count;
                         Grid_out.ColumnCount = 5;
+                        dataGridView3.Columns[0].Visible = true;
                         dataGridView3.Columns[0].Width = 180;
                         dataGridView3.Columns[1].Width = 60;
                         dataGridView3.Columns[2].Width = 60;
@@ -565,14 +566,17 @@ namespace SQL
                     }
                     for (int i = 0; i < arr_user_in.Count; i++)// формирование массива отработанного времени 
                     {
+                        
                         row = new List<string>();
                         arr_out.Add(row);
                         for (int t = 0; t < last_day+2; t++)//добавление ячеек по кличетсву дней
                         {
                             arr_out[i+1].Add("");
                         }
-                        for (int d = 1; d < last_day; d++)
+                        for (int d = 1; d <= last_day; d++)
                         {
+                            var temp_user_i = i;
+                            var temp11 = d;
                             DateTime to_work = new DateTime(2000, 1, 1);
                             DateTime from_work = new DateTime(2000, 1, 1);
                             TimeSpan time_in_work;
@@ -599,13 +603,15 @@ namespace SQL
                                     if (from_work.Subtract(to_work) > four_hour)
                                     {
                                         time_in_work = from_work.Subtract(to_work) - hour;
-                                        arr_out[i+1][d] = Convert.ToString(time_in_work);
+                                        arr_out[i+1][d+1] = Convert.ToString(time_in_work) + " ";
                                     }
                                     else
                                     {
                                         time_in_work = from_work.Subtract(to_work);
-                                        arr_out[i+1][d] = Convert.ToString(time_in_work);
+                                        arr_out[i+1][d+1] = Convert.ToString(time_in_work)+ " ";
                                     }
+                                    find_to_work = false;
+                                    find_from_work = false;
                                 }
                             }
                         }
@@ -639,7 +645,7 @@ namespace SQL
                                                 dev_string = "удаленная работа";
                                                 break;
                                         }
-                                        arr_out[ii][d+2] = arr_out[ii][d+2] + " ("+dev_string+")";
+                                        arr_out[ii][d+2] = arr_out[ii][d+2] + "("+dev_string+")";
                                     }
                                 }
                             }
@@ -683,11 +689,8 @@ namespace SQL
                 }
             }
         }
-
-
-
-
-        public void method_arr_to_excel_mounth_eppuls(List<List<string>> arr_in)
+                     
+        public void method_arr_to_excel_mounth_eppuls(List<List<string>> arr_in)//метод записи в файл эексель отчета о отработаном времени 
         {
             var excelFile = new ExcelPackage();
             var sheet = excelFile.Workbook.Worksheets.Add("Отчет отработанного времени в месяц");
@@ -732,34 +735,18 @@ namespace SQL
                     mounth_string = "декабрь";
                     break;
             }
-            for (int s = 1; s < day_count; s++)
+            for (int s = 1; s < day_count+1; s++)//утсановливаем размер и перенос строк у ячеек
             {
-                sheet.Column(s + 2).Width = 11;
+                sheet.Column(s + 2).Width = 12;
                 sheet.Column(s + 2).Style.WrapText = true;
             }
-            sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + mounth_string + " " + DateTime.Parse(arr_in[0].Last()).Year;
+
+            sheet.Cells[1, 1].Value = "Отчет о времени проведенном на рабочем месте за " + mounth_string + " " + DateTime.Parse(arr_in[0].Last()).Year;//название отчета 
             sheet.Cells[1, 1].Style.Font.Bold = true;
             sheet.Cells[1, 1].Style.Font.Size = 15;
             sheet.Cells["A1:G1"].Merge = true;
             sheet.Column(1).Width = 5;
             sheet.Column(2).Width = 37;
-
-
-
-
-            /*sheet.Column(1).Width = 5;
-            sheet.Column(2).Width = 45;
-            sheet.Column(3).Width = 14;
-            sheet.Column(4).Width = 14;
-            sheet.Column(5).Width = 14;
-            sheet.Column(6).Width = 14;
-            sheet.Cells[2, 1].Value = "№";
-            sheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[2, 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            sheet.Cells[2, 2].Value = "Фамилия Имя Отчество";
-            sheet.Cells[2, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;*/
-
 
             for (int i = 0; i < arr_in.Count-1; i++)//генерация нумерации
             {
@@ -767,15 +754,20 @@ namespace SQL
             }
             for (int i = 0; i < arr_in.Count; i++)//генерация данных экселя
             {
-                for (var j=0; j< day_count;j++)
+                for (var j=0; j< day_count+1;j++)
                 {
                     sheet.Cells[i + 2, j+2].Value = arr_in[i][j+1];
                 }
             }
 
+            sheet.Cells[2, 1].Value = "№";
+            sheet.Cells[2, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             sheet.Cells[2, 2].Value = "Фамилия Имя Отчество";
             sheet.Cells[2, 2].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             sheet.Cells[2, 2].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            sheet.Row(2).Style.Font.Bold = true;
+            sheet.Row(2).Style.Font.Size = 11;
 
             using (var cells = sheet.Cells[sheet.Dimension.Address])
             {
@@ -786,32 +778,17 @@ namespace SQL
                 cells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 cells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             }
-
-
             var bin = excelFile.GetAsByteArray();
-            File.WriteAllBytes(@"Отчет_за_" + date_to_request + ".xlsx", bin);
+            File.WriteAllBytes(@"Отчет_за_" + mounth_string + "_ " + DateTime.Parse(arr_in[0].Last()).Year + ".xlsx", bin);//запись в фвйл
         }
+        
+        //------------- Кнопки запуска
 
-
-
-
-
-
-
-
-
-
-
-
-        //-------------
-
-
-        private void dateTimePicker1_ValueChanged(object sender, EventArgs e)
+        private void dateTimePicker1_ValueChanged(object sender, EventArgs e) //выбор даты запроса
         {
             date_to_request = dateTimePicker1.Value.ToShortDateString();
         }
-
-
+        
         private void button7_Click(object sender, EventArgs e)
         {
             if (radioButton1.Checked)
@@ -830,9 +807,12 @@ namespace SQL
                     method_of_end_arr(arr_events, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
                     method_arr_to_grid(arr_of_work, ref dataGridView3);//выводим массив в датагрид
                     button3.Enabled = true;
+                    button1.Enabled = true;
                 }
                 catch (Exception r)
                 {
+                    button3.Enabled = false;
+                    button1.Enabled = false;
                     MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
                 }
             }
@@ -842,7 +822,7 @@ namespace SQL
                 Int32 year = DateTime.Parse(Convert.ToString(dateTimePicker1.Value)).Year;
                 Int32 day_in_mounth = DateTime.DaysInMonth(year, month);
                 try
-                {
+                {               
                     connecting_path = method_connection_string(textBox1, textBox2, textBox3);
                     method_connect_to_fb(connecting_path, ref label5);// подключаемся к БД
                     method_arr_of_users(ref arr_user);//фомируем массив пользователей
@@ -851,21 +831,19 @@ namespace SQL
                     method_of_end_arr_mounth(arr_events_per_mounth, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
                     method_arr_to_grid_mounth(arr_of_work, ref dataGridView3);//выводим массив в датагрид
                     button3.Enabled = true;
+                    button1.Enabled = true;
                 }
                 catch (Exception r)
                 {
+                    button3.Enabled = false;
+                    button1.Enabled = false;
                     MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
                 }
 
             }
         }
-        
-        private void button4_Click(object sender, EventArgs e)
-        {
-            Close(); 
-        }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e) // кнопка формирование отчетов
         {
             if (radioButton1.Checked)
             {
@@ -877,7 +855,6 @@ namespace SQL
                 {
                     MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
                 }
-
             }
             else
             {
@@ -889,10 +866,7 @@ namespace SQL
                 {
                     MessageBox.Show(r.Message, "Сообщение", MessageBoxButtons.OK);
                 }
-
             }
-
-
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -901,40 +875,30 @@ namespace SQL
             fr3.Show();
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            openFileDialog1.Filter = "DB (*.fdb)|*.fdb";
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                textBox1.Text = openFileDialog1.FileName;
-            }
-        }
-
         private void button3_Click_1(object sender, EventArgs e)
         {
             Form4 fr4 = new Form4();
             fr4.Show();
         }
 
- 
-        private void button5_Click(object sender, EventArgs e)
-        {
-            //Program.PropsFields.;
-        }
-
-        private void radioButton1_MouseClick(object sender, MouseEventArgs e)
+        private void radioButton1_MouseClick(object sender, MouseEventArgs e) // выбор отчетов за день
         {
             radioButton1.Checked = true;
             radioButton2.Checked = false;
             dateTimePicker1.Format = DateTimePickerFormat.Short;
         }
 
-        private void radioButton2_MouseClick(object sender, MouseEventArgs e)
+        private void radioButton2_MouseClick(object sender, MouseEventArgs e) // выбор отчетов за месяц
         {
             radioButton1.Checked = false;
             radioButton2.Checked = true;
             dateTimePicker1.CustomFormat = "MM.yyyy";
             dateTimePicker1.Format = DateTimePickerFormat.Custom;
         }
+
+        private void button4_Click(object sender, EventArgs e)//кнопка закрытия программы
+        {
+            Close();
+        }        
     }
 }
