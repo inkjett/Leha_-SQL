@@ -545,11 +545,11 @@ namespace SQL
 
         //метод формирования масива об отработанном времени в течении месяца
                
-        public void method_of_end_arr_mounth(List<List<string>> arr_events_in, List<List<string>> arr_user_in, List<List<string>> arr_of_deviation_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
+        public void method_of_end_arr_mounth(Int32 last_day, Int32 current_year, Int32 current_mount, List<List<string>> arr_events_in, List<List<string>> arr_user_in, List<List<string>> arr_of_deviation_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
         {        
-            Int32 last_day = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Day;
-            Int32 current_year = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Year;
-            Int32 current_mount = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Month;
+            //Int32 last_day = day_end;
+            //Int32 current_year = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Year;
+            //Int32 current_mount = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Month;
             if (data_is_read == true)
             {
                 try
@@ -581,11 +581,7 @@ namespace SQL
                             DateTime from_work = new DateTime(2000, 1, 1);
                             TimeSpan time_in_work;
                             bool find_to_work = false;
-                            bool find_from_work = false;
-
-
-
-
+                            bool find_from_work = false;                                                                                 
                             arr_out[i+1][0] = arr_user_in[i][1];//ID пользователя в ячейку
                             arr_out[i+1][1] = arr_user_in[i][0];//Имя пользователя в ячейку
                             for (int ii = 0; ii < arr_events_in.Count; ii++)// начало и конец рабочего дня 
@@ -605,7 +601,7 @@ namespace SQL
                                     find_to_work = true;
                                     ii = 0;
                                 }
-                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && (DateTime.Parse(arr_events_in[ii][0]).Day == d) && first_was_found)
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && (DateTime.Parse(arr_events_in[ii][0]).Day == d) && !first_was_found)
                                 {
                                     from_work = (DateTime.Parse(arr_events_in[ii][0]));
                                     arr_events_in.RemoveAt(ii);                                    
@@ -834,6 +830,7 @@ namespace SQL
                 Int32 month = DateTime.Parse(Convert.ToString(dateTimePicker1.Value)).Month;
                 Int32 year = DateTime.Parse(Convert.ToString(dateTimePicker1.Value)).Year;
                 Int32 day_in_mounth = DateTime.DaysInMonth(year, month);
+
                 try
                 {               
                     connecting_path = method_connection_string(textBox1, textBox2, textBox3);
@@ -841,7 +838,7 @@ namespace SQL
                     method_arr_of_users(ref arr_user);//фомируем массив пользователей
                     method_of_deviation(ref arr_of_deviation);//формируем массив отпусков командировок итд
                     method_arr_of_events_mounth(day_in_mounth, month, year, ref arr_events_per_mounth);//формируем массив отработок за месяц
-                    method_of_end_arr_mounth(arr_events_per_mounth, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
+                    method_of_end_arr_mounth(day_in_mounth, year, month, arr_events_per_mounth, arr_user, arr_of_deviation, ref arr_of_work);//формируем окончательный массив данных
                     method_arr_to_grid_mounth(arr_of_work, ref dataGridView3);//выводим массив в датагрид
                     button3.Enabled = true;
                     button1.Enabled = true;
