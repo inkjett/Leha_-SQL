@@ -45,14 +45,7 @@ namespace SQL
             InitializeComponent();
             Program.f1 = this;            
         }
-
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            
-        }
-
-    
+                   
         //методы
         public string method_connection_string (TextBox Text_Path, TextBox Text_user, TextBox Text_pass)
         {
@@ -547,9 +540,6 @@ namespace SQL
                
         public void method_of_end_arr_mounth(Int32 last_day, Int32 current_year, Int32 current_mount, List<List<string>> arr_events_in, List<List<string>> arr_user_in, List<List<string>> arr_of_deviation_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
         {        
-            //Int32 last_day = day_end;
-            //Int32 current_year = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Year;
-            //Int32 current_mount = (DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0])).Month;
             if (data_is_read == true)
             {
                 try
@@ -566,7 +556,6 @@ namespace SQL
                     }
                     for (int i = 0; i < arr_user_in.Count; i++)// формирование массива отработанного времени 
                     {
-                        
                         row = new List<string>();
                         arr_out.Add(row);
                         for (int t = 0; t < last_day+2; t++)//добавление ячеек по кличетсву дней
@@ -587,25 +576,23 @@ namespace SQL
                             for (int ii = 0; ii < arr_events_in.Count; ii++)// начало и конец рабочего дня 
                             {
                                 bool first_was_found = false;
-                                var temp_arr_user_in = arr_user_in[i][2];
-                                var temp_arr_events_in_d = DateTime.Parse(arr_events_in[ii][0]).Day;
-                                var temp_day = DateTime.Parse(arr_events_in[arr_events_in.Count - 1][0]);
-                                var temp_arr_events_in_1 = arr_events_in[ii][1];
-                                var temp_arr_events_in_2 = arr_events_in[ii][2];
-
                                 if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
                                 {
                                     to_work = (DateTime.Parse(arr_events_in[ii][0]));
                                     arr_events_in.RemoveAt(ii);
                                     first_was_found = true;
                                     find_to_work = true;
-                                    ii = 0;
+                                    ii = -1;
                                 }
-                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && (DateTime.Parse(arr_events_in[ii][0]).Day == d) && !first_was_found)
+
+                                if (!first_was_found)
                                 {
-                                    from_work = (DateTime.Parse(arr_events_in[ii][0]));
-                                    arr_events_in.RemoveAt(ii);                                    
-                                    find_from_work = true;
+                                    if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && (DateTime.Parse(arr_events_in[ii][0]).Day == d))
+                                    {
+                                        from_work = (DateTime.Parse(arr_events_in[ii][0]));
+                                        arr_events_in.RemoveAt(ii);
+                                        find_from_work = true;
+                                    }
                                 }
                                 if (find_to_work && find_from_work)// если время на работе больше 4 часов то 1 час отнимаем если нет то не отнимаем 
                                 {

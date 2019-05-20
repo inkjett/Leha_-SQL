@@ -183,7 +183,7 @@ namespace SQL
                                     FbTransaction fbt = fb.BeginTransaction(); //необходимо проинициализить транзакцию для объекта InsertSQL
                                     InsertSQL.Transaction = fbt;
                                     int result = InsertSQL.ExecuteNonQuery();
-                                    MessageBox.Show("Добавление причины отсутвия на рабочем месте выполнено");
+                                    //MessageBox.Show("Добавление причины отсутвия на рабочем месте выполнено");
                                     fbt.Commit();
                                     fbt.Dispose();
                                     InsertSQL.Dispose();
@@ -282,7 +282,7 @@ namespace SQL
                                     FbTransaction fbt = fb.BeginTransaction(); //необходимо проинициализить транзакцию для объекта InsertSQL
                                     InsertSQL.Transaction = fbt;
                                     int result = InsertSQL.ExecuteNonQuery();
-                                    MessageBox.Show("Изменение причины отсутвия на рабочем месте выполнено");
+                                    //MessageBox.Show("Изменение причины отсутвия на рабочем месте выполнено");
                                     fbt.Commit();
                                     fbt.Dispose();
                                     InsertSQL.Dispose();
