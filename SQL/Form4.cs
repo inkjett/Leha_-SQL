@@ -63,7 +63,7 @@ namespace SQL
             boxcolum.Width = 90;
             boxcolum.MaxDropDownItems = 4;
             datagrid_of_dev.Columns.Insert(0, boxcolum);
-            boxcolum.Items.AddRange("больничный", "отпуск", "командировка", "удаленная работа");
+            boxcolum.Items.AddRange("больничный", "отпуск", "командировка", "удаленная работа","отгул");
             datagrid_of_dev.Rows.Clear();
             datagrid_of_dev.ColumnCount = 4;
             datagrid_of_dev.Columns[1].Width = 90;
@@ -92,6 +92,9 @@ namespace SQL
                         break;
                     case 3:
                         datagrid_of_dev.Rows[i].Cells[0].Value = "удаленная работа";
+                        break;
+                    case 4:
+                        datagrid_of_dev.Rows[i].Cells[0].Value = "отгул";
                         break;
                 }
                 datagrid_of_dev.Rows[i].Cells[1].Value = temp[i][2];
@@ -171,6 +174,10 @@ namespace SQL
                         {
                             reason_absence = 3;
                         }
+                        if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "отгул")
+                        {
+                            reason_absence = 4;
+                        }
 
                         if ((Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[1].Value), pattern) && Regex.IsMatch(Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[2].Value), pattern)) && reason_absence != (-1))
                         {
@@ -247,6 +254,11 @@ namespace SQL
                         if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "удаленная работа")
                         {
                             reason_absence = 3;
+                            can_run_query = true;
+                        }
+                        if (Convert.ToString(dataGridView1.Rows[e.RowIndex].Cells[0].Value) == "отгул")
+                        {
+                            reason_absence = 4;
                             can_run_query = true;
                         }
 

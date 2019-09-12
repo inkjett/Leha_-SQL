@@ -294,7 +294,7 @@ namespace SQL
                             }
                         }
                     }
-                    for (int ii = 0; ii < arr_out.Count; ii++)//0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
+                    for (int ii = 0; ii < arr_out.Count; ii++)//0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа 4 - отгул
                     {
                         for (int iii = 0; iii < arr_of_deviation_in.Count;iii++)
                         {
@@ -316,6 +316,9 @@ namespace SQL
                                             break;
                                         case 3:
                                             arr_out[ii][4] = "удаленная работа";
+                                            break;
+                                        case 4:
+                                            arr_out[ii][4] = "отгул";
                                             break;
                                     }
                                 }
@@ -399,8 +402,8 @@ namespace SQL
             var bin = excelFile.GetAsByteArray();
             File.WriteAllBytes(@"Отчет_за_" + date_to_request + ".xlsx", bin);
         }
-
-        public void method_of_deviation(ref List<List<string>> arr_out )//отпуск командировка 0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа
+        //отпуск командировка 0 - больничный 1 - отпуск 2 - командировка 3 - удаленная работа 4 - отгул
+        public void method_of_deviation(ref List<List<string>> arr_out )
         {
 
             try
@@ -639,6 +642,9 @@ namespace SQL
                                                 break;
                                             case 3:
                                                 dev_string = "удаленная работа";
+                                                break;
+                                            case 4:
+                                                dev_string = "отгул";
                                                 break;
                                         }
                                         arr_out[ii][d+2] = arr_out[ii][d+2] + "("+dev_string+")";
