@@ -38,12 +38,15 @@ namespace SQL
         TimeSpan hour = new TimeSpan(1, 0, 0);
         TimeSpan four_hour = new TimeSpan(4, 0, 0);
         public string connecting_path;
+        int DEPID=1;
                               
         //------
         public Form1()
         {
             InitializeComponent();
-            Program.f1 = this;            
+            Program.f1 = this;
+            comboBox1.Items.AddRange(new string[] { "ОП ИнфТех", "ИнфТех(МСК)"});
+            comboBox1.SelectedIndex=0;
         }
                    
         //методы
@@ -59,7 +62,6 @@ namespace SQL
         {
             try
             {
-                //string path_path = "character set = WIN1251; initial catalog = "+textBox4.Text+":" + @""+textBox1.Text+"; user id = " + Text_user.Text + "; password = " + Text_pass.Text + "; ";
                 fb = new FbConnection(path_in);
                 fb.Open();
             }
@@ -88,7 +90,7 @@ namespace SQL
                     int i = 0, j = 0;
 
                     FbTransaction fbt = fb.BeginTransaction();
-                    FbCommand SelectSQL = new FbCommand("SELECT people.lname||' '||people.fname||' '||people.sname, people.peopleid,cards.cardnum, people.depid FROM cards INNER JOIN people ON(people.peopleid = CARDS.peopleid) where (people.depid != 29) AND (people.depid != 40)", fb); //задаем запрос на выборку исключается ид группы 29 и 40
+                    FbCommand SelectSQL = new FbCommand("SELECT people.lname||' '||people.fname||' '||people.sname, people.peopleid,cards.cardnum, people.depid FROM cards INNER JOIN people ON(people.peopleid = CARDS.peopleid) where (people.depid != 29) AND (people.depid =" + DEPID+")", fb); //задаем запрос на выборку исключается ид группы 29 и 40
                     SelectSQL.Transaction = fbt;
                     FbDataReader reader = SelectSQL.ExecuteReader();
 
@@ -793,6 +795,7 @@ namespace SQL
         
         private void button7_Click(object sender, EventArgs e)
         {
+            
             if (radioButton1.Checked)
             {
                 connecting_path = method_connection_string(textBox1, textBox2, textBox3);
@@ -902,6 +905,20 @@ namespace SQL
         private void button4_Click(object sender, EventArgs e)//кнопка закрытия программы
         {
             Close();
-        }        
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (comboBox1.SelectedIndex)
+            {
+                case 0:
+                    DEPID = 1;
+                    break;
+                case 1:
+                    DEPID = 42;
+                    break;
+            }
+            
+        }
     }
 }
