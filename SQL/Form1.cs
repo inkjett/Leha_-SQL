@@ -27,7 +27,7 @@ namespace SQL
         List<List<string>> arr_events;
         List<List<string>> arr_events_per_mounth;
         List<List<string>> arr_of_work;
-        public List<List<string>> arr_of_deviation;  
+        public List<List<string>> arr_of_deviation;
         string date_to_request = "0";
         public bool data_is_read = false;
         public string path_to_DB = "C:\\123.fdb";
@@ -35,10 +35,17 @@ namespace SQL
         public string Pass = "masterkey";
         DateTime now = DateTime.Now;
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
+        TimeSpan fortyFiveMinut = new TimeSpan(0, 45, 0);
         TimeSpan hour = new TimeSpan(1, 0, 0);
+        TimeSpan twoHour = new TimeSpan(2, 0, 0);
         TimeSpan four_hour = new TimeSpan(4, 0, 0);
         public string connecting_path;
+        string[] dep42 = new string[6] { "35", "17", "26", "43", "25", "34" };
+        string[] dep42In = new string[3] { "35", "17", "26"};
+        string[] dep42Out = new string[3] { "43", "25", "34" };
+        string[] dep1 = new string[2] {"3" ,"13"};
         int DEPID=1;
+        TimeSpan dinner; 
                               
         //------
         public Form1()
@@ -139,7 +146,7 @@ namespace SQL
                 bool start_bool = true;
                 if (fb.State == ConnectionState.Open)
                 {
-                    int i = 0, j = 0;
+                    int i = 0;
 
                     FbTransaction fbt = fb.BeginTransaction();
                     FbCommand SelectSQL = new FbCommand("SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + date_to_request_in + " 00:00:00' AND events.eventsdate <= '" + date_to_request_in + " 23:59:59'", fb); //задаем запрос на выборку
@@ -152,43 +159,82 @@ namespace SQL
 
                     try
                     {
+                        row = new List<string>();// создание первой стороки 
+                        arr_out.Add(row);
+                        arr_out[i].Add("");
+                        arr_out[i].Add("");
+                        arr_out[i].Add("");
                         while (reader.Read()) //пока не прочли все данные выполняем...
                         {
-                            row = new List<string>();
-                            arr_out.Add(row);
-                            arr_out[i].Add("");
-                            arr_out[i].Add("");
-                            arr_out[i].Add("");
-                            arr_out[i][j] = reader.GetString(0).ToString();//добавиои время
-                            arr_out[i][j + 1] = reader.GetString(1).ToString();// добавили id ключа
-                            arr_out[i][j + 2] = reader.GetString(2).ToString();//добавили id эвента
-                            for (int ii = 0; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
+                            arr_out[i][0] = reader.GetString(0).ToString();//добавиои время
+                            arr_out[i][1] = reader.GetString(1).ToString();// добавили id ключа
+                            arr_out[i][2] = reader.GetString(2).ToString();//добавили id эвента
+                            if ((DEPID == 1) && dep1.ToList().IndexOf(arr_out[i][2]) != -1) // для департамена ИнфтехУфа
                             {
-                                if ((arr_out[ii][1] == arr_out[i][1]) && (arr_out[ii][2] == arr_out[i][2]))//проверка на уже существующее ID 
+                                for (int ii = 0; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
                                 {
-                                    if (Convert.ToInt32(arr_out[i][2]) == 3)// проверка на сощуствующий эвент 3-вход 13-выход
+                                    if ((arr_out[ii][1] == arr_out[i][1]) && (arr_out[ii][2] == arr_out[i][2]))//проверка на уже существующее ID 
                                     {
-                                        if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i][0])) // проверка на время
+                                        if (Convert.ToInt32(arr_out[i][2]) == 3)// проверка на сощуствующий эвент 3-вход 13-выход
                                         {
-                                            arr_out[ii][0] = arr_out[i][0];
+                                            if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            {
+                                                arr_out[ii][0] = arr_out[i][0];
+                                            }
                                         }
-                                    }
-                                    if (Convert.ToInt32(arr_out[i][2]) == 13)// провоека на сощуствующий эвент 3-вход 13-выход
-                                    {
-                                        if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i][0])) // проверка на время
+                                        if (Convert.ToInt32(arr_out[i][2]) == 13)// провоека на сощуствующий эвент 3-вход 13-выход
                                         {
-                                            arr_out[ii][0] = arr_out[i][0];
+                                            if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            {
+                                                arr_out[ii][0] = arr_out[i][0];
+                                            }
                                         }
+                                        arr_out.Remove(row);
+                                        i--;
                                     }
-                                    arr_out.Remove(row);
-                                    i--;
                                 }
+                                i++;
+                                row = new List<string>(); // если все при выборе ИнфтехУфа нашлась запись то создается слудущая сторока
+                                arr_out.Add(row);
+                                arr_out[i].Add("");
+                                arr_out[i].Add("");
+                                arr_out[i].Add("");
+                                start_bool = false;
                             }
-                            i++;
-                            start_bool = false;
+                            else if ((DEPID == 42) && dep42.ToList().IndexOf(arr_out[i][2]) != -1) // для департамена ИнфтехМск
+                            {
+                                arr_out[i][0] = Convert.ToString((DateTime.Parse(arr_out[i][0]))- twoHour);// отнимаем 2 часа для врменной зоны                               
+                                for (int ii = 0; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
+                                {
+                                    if ((arr_out[ii][1] == arr_out[i][1]) && (arr_out[ii][2] == arr_out[i][2]))//проверка на уже существующее ID 
+                                    {
+                                        if (dep42In.ToList().IndexOf(arr_out[i][2]) != -1)// проверка на сощуствующий эвент 35, 17, 26 - вход
+                                        {
+                                            if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            {
+                                                arr_out[ii][0] = arr_out[i][0];
+                                            }
+                                        }
+                                        if (dep42Out.ToList().IndexOf(arr_out[i][2]) != -1)// провоека на сощуствующий эвент 43, 25, 34 - выход
+                                        {
+                                            if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i][0])) // проверка на время
+                                            {
+                                                arr_out[ii][0] = arr_out[i][0];
+                                            }
+                                        }
+                                        arr_out.Remove(row);
+                                        i--;
+                                    }
+                                }
+                                i++;
+                                row = new List<string>();// если все при выборе ИнфтехМСК нашлась запись то создается слудущая сторока
+                                arr_out.Add(row);
+                                arr_out[i].Add("");
+                                arr_out[i].Add("");
+                                arr_out[i].Add("");
+                                start_bool = false;
+                            }                           
                         }
-
-
                     }
                     finally
                     {
@@ -262,17 +308,33 @@ namespace SQL
                         arr_out[i].Add("");
                         arr_out[i].Add("");
                         arr_out[i][0] = arr_user_in[i][0];
-                        arr_out[i][5] = arr_user_in[i][1];//добавление ID пользователя в в 4 столбец,нужен для формирования списка командировка итд
-                        for (int ii = 0; ii < arr_events_in.Count; ii++)
+                        arr_out[i][5] = arr_user_in[i][1];//добавление ID пользователя в 4 столбец,нужен для формирования списка командировка итд
+                        if (DEPID == 1)// ИнфтехУфа
                         {
-                            if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3))
+                            for (int ii = 0; ii < arr_events_in.Count; ii++)
                             {
-                                arr_out[i][1] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
-                                                            }
-                            if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13))
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && ( Convert.ToInt32(arr_events_in[ii][2]) == 3)) // выход 
+                                {
+                                    arr_out[i][1] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+                                }
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13)) //выход
+                                {
+                                    arr_out[i][2] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+                                }
+                            }
+                        }
+                        else if (DEPID == 42)//ИнфтехМск
+                        {
+                            for (int ii = 0; ii < arr_events_in.Count; ii++)
                             {
-                                arr_out[i][2] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
-
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (dep42In.ToList().IndexOf(arr_events_in[ii][2]) != -1)) // вход
+                                {
+                                    arr_out[i][1] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+                                }
+                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && ((dep42Out.ToList().IndexOf(arr_events_in[ii][2]) != -1))) // выход
+                                {
+                                    arr_out[i][2] = arr_events_in[ii][0].Remove(0, arr_events_in[ii][0].IndexOf(" ") + 1);
+                                }
                             }
                         }
                     }
@@ -287,7 +349,7 @@ namespace SQL
                             {
                                 if(end.Subtract(start)>four_hour)
                                 {
-                                    arr_out[i][3] = Convert.ToString(end - start - hour);
+                                    arr_out[i][3] = Convert.ToString(end - start - dinner);
                                 }
                                 else
                                 {
@@ -380,10 +442,6 @@ namespace SQL
                 sheet.Cells[i + 3, 1].Value = i + 1;
                 sheet.Cells[i + 3, 2].Value = arr_in[i][0];
                 sheet.Cells[i + 3, 3].Value = arr_in[i][1];
-                /*if ( (arr_in[i][1] == Convert.ToString("больничный")) || (arr_in[i][1] == Convert.ToString("отпуск")) || (arr_in[i][1] == Convert.ToString("командировка")) || (arr_in[i][1] == Convert.ToString("удаленная работа")))
-                {
-                    sheet.Cells["C"+(i+3)+":"+"E"+(i+3)].Merge = true;
-                }*/
                 sheet.Cells[i + 3, 4].Value = arr_in[i][2];
                 sheet.Cells[i + 3, 5].Value = arr_in[i][3];
                 sheet.Cells[i + 3, 6].Value = arr_in[i][4];
@@ -913,9 +971,12 @@ namespace SQL
             {
                 case 0:
                     DEPID = 1;
+                    dinner  = new TimeSpan(1, 0, 0); // обед 1 час
+                    
                     break;
                 case 1:
                     DEPID = 42;
+                    dinner = new TimeSpan(0, 45, 0); // обед 45 минут
                     break;
             }
             
