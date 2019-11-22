@@ -20,7 +20,6 @@ namespace SQL
 {
     public partial class Form1 : Form
     {
-
         //описание переменных
         FbConnection fb;
         public List<List<string>> arr_user;
@@ -291,7 +290,6 @@ namespace SQL
         {            
             if (data_is_read == true)
             {
-
                 try
                 {
                     List<string> row = new List<string>();
@@ -545,40 +543,80 @@ namespace SQL
                         Int32 temp = reader.FieldCount;
                         try
                         {
+                            row = new List<string>();
+                            arr_out.Add(row);
+                            arr_out[i + temp_arr_lenth].Add("");
+                            arr_out[i + temp_arr_lenth].Add("");
+                            arr_out[i + temp_arr_lenth].Add("");
                             while (reader.Read()) //пока не прочли все данные выполняем...
                             {
-                                row = new List<string>();
-                                arr_out.Add(row);
-                                arr_out[i+ temp_arr_lenth].Add("");
-                                arr_out[i+ temp_arr_lenth].Add("");
-                                arr_out[i+ temp_arr_lenth].Add("");
                                 arr_out[i+ temp_arr_lenth][j] = reader.GetString(0).ToString();//добавиои время
                                 arr_out[i+ temp_arr_lenth][j + 1] = reader.GetString(1).ToString();// добавили id ключа
                                 arr_out[i+ temp_arr_lenth][j + 2] = reader.GetString(2).ToString();//добавили id эвента
-                                for (int ii = temp_arr_lenth; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
+                                if ((DEPID == 1) && dep1.ToList().IndexOf(arr_out[i + temp_arr_lenth][2]) != -1) // для департамена ИнфтехУфа
                                 {
-                                    if ((arr_out[ii][1] == arr_out[i+ temp_arr_lenth][1]) && (arr_out[ii][2] == arr_out[i+ temp_arr_lenth][2]))//проверка на уже существующее ID 
+                                    for (int ii = temp_arr_lenth; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
                                     {
-                                        if (Convert.ToInt32(arr_out[i+ temp_arr_lenth][2]) == 3)// проверка на сощуствующий эвент 3-вход 13-выход
+                                        if ((arr_out[ii][1] == arr_out[i + temp_arr_lenth][1]) && (arr_out[ii][2] == arr_out[i + temp_arr_lenth][2]))//проверка на уже существующее ID 
                                         {
-                                            if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i+ temp_arr_lenth][0])) // проверка на время
+                                            if (Convert.ToInt32(arr_out[i + temp_arr_lenth][2]) == 3)// проверка на сощуствующий эвент 3-вход 13-выход
                                             {
-                                                arr_out[ii][0] = arr_out[i+ temp_arr_lenth][0];
+                                                if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i + temp_arr_lenth][0])) // проверка на время
+                                                {
+                                                    arr_out[ii][0] = arr_out[i + temp_arr_lenth][0];
+                                                }
                                             }
-                                        }
-                                        if (Convert.ToInt32(arr_out[i+ temp_arr_lenth][2]) == 13)// провоека на сощуствующий эвент 3-вход 13-выход
-                                        {
-                                            if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i+ temp_arr_lenth][0])) // проверка на время
+                                            if (Convert.ToInt32(arr_out[i + temp_arr_lenth][2]) == 13)// провоека на сощуствующий эвент 3-вход 13-выход
                                             {
-                                                arr_out[ii][0] = arr_out[i+ temp_arr_lenth][0];
+                                                if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i + temp_arr_lenth][0])) // проверка на время
+                                                {
+                                                    arr_out[ii][0] = arr_out[i + temp_arr_lenth][0];
+                                                }
                                             }
+                                            arr_out.Remove(row);
+                                            i--;
                                         }
-                                        arr_out.Remove(row);
-                                        i--;
                                     }
+                                    i++;
+                                    row = new List<string>();
+                                    arr_out.Add(row);
+                                    arr_out[i + temp_arr_lenth].Add("");
+                                    arr_out[i + temp_arr_lenth].Add("");
+                                    arr_out[i + temp_arr_lenth].Add("");
+                                    start_bool = false;
                                 }
-                                i++;                              
-                                start_bool = false;
+                                if ((DEPID == 42) && dep42.ToList().IndexOf(arr_out[i + temp_arr_lenth][2]) != -1) // для департамена ИнфтехМск
+                                {
+                                    for (int ii = temp_arr_lenth; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
+                                    {
+                                        if ((arr_out[ii][1] == arr_out[i + temp_arr_lenth][1]) && (arr_out[ii][2] == arr_out[i + temp_arr_lenth][2]))//проверка на уже существующее ID 
+                                        {
+                                            if(dep42In.ToList().IndexOf(arr_out[i + temp_arr_lenth][2]) != -1)// проверка на сощуствующий эвент 35, 17, 26 - вход
+                                            {
+                                                if (DateTime.Parse(arr_out[ii][0]) > DateTime.Parse(arr_out[i + temp_arr_lenth][0])) // проверка на время
+                                                {
+                                                    arr_out[ii][0] = arr_out[i + temp_arr_lenth][0];
+                                                }
+                                            }
+                                            if (dep42Out.ToList().IndexOf(arr_out[i + temp_arr_lenth][2]) != -1)// провоека на сощуствующий эвент 43, 25, 34 - выход
+                                            {
+                                                if (DateTime.Parse(arr_out[ii][0]) < DateTime.Parse(arr_out[i + temp_arr_lenth][0])) // проверка на время
+                                                {
+                                                    arr_out[ii][0] = arr_out[i + temp_arr_lenth][0];
+                                                }
+                                            }
+                                            arr_out.Remove(row);
+                                            i--;
+                                        }
+                                    }
+                                    i++;
+                                    row = new List<string>();
+                                    arr_out.Add(row);
+                                    arr_out[i + temp_arr_lenth].Add("");
+                                    arr_out[i + temp_arr_lenth].Add("");
+                                    arr_out[i + temp_arr_lenth].Add("");
+                                    start_bool = false;
+                                }
                             }
                         }
                         finally
@@ -599,8 +637,7 @@ namespace SQL
 
         }
 
-        //метод формирования масива об отработанном времени в течении месяца
-               
+        //метод формирования масива об отработанном времени в течении месяца               
         public void method_of_end_arr_mounth(Int32 last_day, Int32 current_year, Int32 current_mount, List<List<string>> arr_events_in, List<List<string>> arr_user_in, List<List<string>> arr_of_deviation_in, ref List<List<string>> arr_out)//метод формирования массива по отработанному времени
         {        
             if (data_is_read == true)
@@ -639,29 +676,52 @@ namespace SQL
                             for (int ii = 0; ii < arr_events_in.Count; ii++)// начало и конец рабочего дня 
                             {
                                 bool first_was_found = false;
-                                if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
+                                if (DEPID == 1)
                                 {
-                                    to_work = (DateTime.Parse(arr_events_in[ii][0]));
-                                    arr_events_in.RemoveAt(ii);
-                                    first_was_found = true;
-                                    find_to_work = true;
-                                    ii = -1;
-                                }
-
-                                if (!first_was_found)
-                                {
-                                    if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && (DateTime.Parse(arr_events_in[ii][0]).Day == d))
+                                    if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 3) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
                                     {
-                                        from_work = (DateTime.Parse(arr_events_in[ii][0]));
+                                        to_work = (DateTime.Parse(arr_events_in[ii][0]));
                                         arr_events_in.RemoveAt(ii);
-                                        find_from_work = true;
+                                        first_was_found = true;
+                                        find_to_work = true;
+                                        ii = -1;
+                                    }
+                                    if (!first_was_found)
+                                    {
+                                        if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (Convert.ToInt32(arr_events_in[ii][2]) == 13) && (DateTime.Parse(arr_events_in[ii][0]).Day == d))
+                                        {
+                                            from_work = (DateTime.Parse(arr_events_in[ii][0]));
+                                            arr_events_in.RemoveAt(ii);
+                                            find_from_work = true;
+                                        }
+                                    }
+                                }
+                                if (DEPID == 42)
+                                {
+                                    
+                                    if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (dep42In.ToList().IndexOf(arr_events_in[ii][2])!= -1) && DateTime.Parse(arr_events_in[ii][0]).Day == d)
+                                    {
+                                        to_work = (DateTime.Parse(arr_events_in[ii][0]));
+                                        arr_events_in.RemoveAt(ii);
+                                        first_was_found = true;
+                                        find_to_work = true;
+                                        ii = -1;
+                                    }
+                                    if (!first_was_found)
+                                    {
+                                        if ((arr_user_in[i][2] == arr_events_in[ii][1]) && (dep42Out.ToList().IndexOf(arr_events_in[ii][2]) != -1) && (DateTime.Parse(arr_events_in[ii][0]).Day == d))
+                                        {
+                                            from_work = (DateTime.Parse(arr_events_in[ii][0]));
+                                            arr_events_in.RemoveAt(ii);
+                                            find_from_work = true;
+                                        }
                                     }
                                 }
                                 if (find_to_work && find_from_work)// если время на работе больше 4 часов то 1 час отнимаем если нет то не отнимаем 
                                 {
                                     if (from_work.Subtract(to_work) > four_hour)
                                     {
-                                        time_in_work = from_work.Subtract(to_work) - hour;
+                                        time_in_work = from_work.Subtract(to_work) - dinner;
                                         arr_out[i+1][d+1] = Convert.ToString(time_in_work) + " ";
                                     }
                                     else
