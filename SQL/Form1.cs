@@ -39,9 +39,9 @@ namespace SQL
         TimeSpan twoHour = new TimeSpan(2, 0, 0);
         TimeSpan four_hour = new TimeSpan(4, 0, 0);
         public string connecting_path;
-        string[] dep42 = new string[6] { "35", "17", "26", "43", "25", "34" };
+        string[] dep42 = new string[6] { "35", "17", "26", "43", "25", "43" };
         string[] dep42In = new string[3] { "35", "17", "26"};
-        string[] dep42Out = new string[3] { "43", "25", "34" };
+        string[] dep42Out = new string[3] { "43", "25", "43" };
         string[] dep1 = new string[2] {"3" ,"13"};
         int DEPID=1;
         TimeSpan dinner; 
@@ -200,10 +200,10 @@ namespace SQL
                                 arr_out[i].Add("");
                                 start_bool = false;
                             }
-                            else if ((DEPID == 42) && dep42.ToList().IndexOf(arr_out[i][2]) != -1) // для департамена ИнфтехМск
+                            else if ((DEPID == 42) && dep42.ToList().IndexOf(arr_out[i][2]) != -1 && arr_out[i][1] != "0") // для департамена ИнфтехМск
                             {
                                 arr_out[i][0] = Convert.ToString((DateTime.Parse(arr_out[i][0]))- twoHour);// отнимаем 2 часа для врменной зоны                               
-                                for (int ii = 0; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
+                                for (int ii = 0; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиcи
                                 {
                                     if ((arr_out[ii][1] == arr_out[i][1]) && (arr_out[ii][2] == arr_out[i][2]))//проверка на уже существующее ID 
                                     {
@@ -233,6 +233,50 @@ namespace SQL
                                 arr_out[i].Add("");
                                 start_bool = false;
                             }                           
+                        }
+                        for (int j = 0; j<arr_out.Count; j++)
+                        {
+                            for (int jj = j+1; jj<arr_out.Count; jj++)
+                            {
+                                bool found = false;
+                                if (arr_out[j][1] == arr_out[jj][1] && (dep42In.ToList().IndexOf(arr_out[jj][2])== -1) && (dep42In.ToList().IndexOf(arr_out[j][2]) == -1))
+                                {
+                                    if (DateTime.Parse(arr_out[j][0]) < DateTime.Parse(arr_out[jj][0]))
+                                    {
+                                        arr_out[j] = arr_out[jj];
+                                        arr_out.RemoveAt(jj);
+                                        jj = arr_out.Count;
+                                        j = 0;
+                                        found = true;
+                                    }
+                                    else
+                                    {
+                                        arr_out.RemoveAt(jj);
+                                        jj = arr_out.Count;
+                                        j = 0;
+                                        found = true;
+                                    }
+                                }
+                                if (!found)
+                                {
+                                    if (arr_out[j][1] == arr_out[jj][1] && (dep42Out.ToList().IndexOf(arr_out[jj][2]) == -1) && (dep42Out.ToList().IndexOf(arr_out[j][2]) == -1))
+                                    {
+                                        if (DateTime.Parse(arr_out[j][0]) > DateTime.Parse(arr_out[jj][0]))
+                                        {
+                                            arr_out[j] = arr_out[jj];
+                                            arr_out.RemoveAt(jj);
+                                            jj = arr_out.Count;
+                                            j = 0;
+                                        }
+                                        else
+                                        {
+                                            arr_out.RemoveAt(jj);
+                                            jj = arr_out.Count;
+                                            j = 0;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     finally
