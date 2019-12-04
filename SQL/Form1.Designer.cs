@@ -198,7 +198,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(100, 20);
             this.textBox4.TabIndex = 24;
-            this.textBox4.Text = "localhost";
+            this.textBox4.Text = "192.168.21.48";
             // 
             // label6
             // 

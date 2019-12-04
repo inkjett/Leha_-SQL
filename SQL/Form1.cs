@@ -39,9 +39,9 @@ namespace SQL
         TimeSpan twoHour = new TimeSpan(2, 0, 0);
         TimeSpan four_hour = new TimeSpan(4, 0, 0);
         public string connecting_path;
-        string[] dep42 = new string[6] { "35", "17", "26", "43", "25", "43" };
+        string[] dep42 = new string[6] { "35", "17", "26", "43", "25", "34" };
         string[] dep42In = new string[3] { "35", "17", "26"};
-        string[] dep42Out = new string[3] { "43", "25", "43" };
+        string[] dep42Out = new string[3] { "43", "25", "34" };
         string[] dep1 = new string[2] {"3" ,"13"};
         int DEPID=1;
         TimeSpan dinner; 
@@ -234,45 +234,48 @@ namespace SQL
                                 start_bool = false;
                             }                           
                         }
-                        for (int j = 0; j<arr_out.Count; j++)
+                        if (DEPID == 42)
                         {
-                            for (int jj = j+1; jj<arr_out.Count; jj++)
+                            for (int j = 0; j < arr_out.Count; j++)
                             {
-                                bool found = false;
-                                if (arr_out[j][1] == arr_out[jj][1] && (dep42In.ToList().IndexOf(arr_out[jj][2])== -1) && (dep42In.ToList().IndexOf(arr_out[j][2]) == -1))
+                                for (int jj = j + 1; jj < arr_out.Count; jj++)
                                 {
-                                    if (DateTime.Parse(arr_out[j][0]) < DateTime.Parse(arr_out[jj][0]))
+                                    bool found = false;
+                                    if (arr_out[j][1] == arr_out[jj][1] && (dep42In.ToList().IndexOf(arr_out[jj][2]) == -1) && (dep42In.ToList().IndexOf(arr_out[j][2]) == -1))
                                     {
-                                        arr_out[j] = arr_out[jj];
-                                        arr_out.RemoveAt(jj);
-                                        jj = arr_out.Count;
-                                        j = 0;
-                                        found = true;
-                                    }
-                                    else
-                                    {
-                                        arr_out.RemoveAt(jj);
-                                        jj = arr_out.Count;
-                                        j = 0;
-                                        found = true;
-                                    }
-                                }
-                                if (!found)
-                                {
-                                    if (arr_out[j][1] == arr_out[jj][1] && (dep42Out.ToList().IndexOf(arr_out[jj][2]) == -1) && (dep42Out.ToList().IndexOf(arr_out[j][2]) == -1))
-                                    {
-                                        if (DateTime.Parse(arr_out[j][0]) > DateTime.Parse(arr_out[jj][0]))
+                                        if (DateTime.Parse(arr_out[j][0]) < DateTime.Parse(arr_out[jj][0]))
                                         {
                                             arr_out[j] = arr_out[jj];
                                             arr_out.RemoveAt(jj);
                                             jj = arr_out.Count;
                                             j = 0;
+                                            found = true;
                                         }
                                         else
                                         {
                                             arr_out.RemoveAt(jj);
                                             jj = arr_out.Count;
                                             j = 0;
+                                            found = true;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        if (arr_out[j][1] == arr_out[jj][1] && (dep42Out.ToList().IndexOf(arr_out[jj][2]) == -1) && (dep42Out.ToList().IndexOf(arr_out[j][2]) == -1))
+                                        {
+                                            if (DateTime.Parse(arr_out[j][0]) > DateTime.Parse(arr_out[jj][0]))
+                                            {
+                                                arr_out[j] = arr_out[jj];
+                                                arr_out.RemoveAt(jj);
+                                                jj = arr_out.Count;
+                                                j = 0;
+                                            }
+                                            else
+                                            {
+                                                arr_out.RemoveAt(jj);
+                                                jj = arr_out.Count;
+                                                j = 0;
+                                            }
                                         }
                                     }
                                 }
@@ -569,7 +572,7 @@ namespace SQL
         {
             try
             {
-
+                string DEPIDRemve = "";
                 bool start_bool = true;
                 List<string> row = new List<string>();          
                 arr_out = new List<List<string>>();
@@ -581,23 +584,34 @@ namespace SQL
                     {
                         int i = 0, j = 0;
                         FbTransaction fbt = fb.BeginTransaction();
-                        FbCommand SelectSQL = new FbCommand("SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + d +"." + current_mounth + "." + current_year + " 00:00:00' AND events.eventsdate <= '" + d + "." + current_mounth + "." + current_year + " 23:59:59'", fb); //задаем запрос на выборку
+
+                        if (DEPID == 1)
+                        {
+                            DEPIDRemve = "AND events.readerid!=" + string.Join(" AND events.readerid!=", dep42);
+
+                        }
+                        if (DEPID == 42)
+                        {
+                            DEPIDRemve = "AND events.readerid!=" + string.Join(" AND events.readerid!=", dep1);
+                        }
+
+                        FbCommand SelectSQL = new FbCommand("SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + d + "." + current_mounth + "." + current_year + " 00:00:00' AND events.eventsdate <= '" + d + "." + current_mounth + "." + current_year + " 23:59:59'" + DEPIDRemve + "AND events.cardnum !=0", fb); //задаем запрос на выборку                        
                         SelectSQL.Transaction = fbt;
                         FbDataReader reader = SelectSQL.ExecuteReader();
                         Int32 temp = reader.FieldCount;
                         try
-                        {
-                            row = new List<string>();
-                            arr_out.Add(row);
-                            arr_out[i + temp_arr_lenth].Add("");
-                            arr_out[i + temp_arr_lenth].Add("");
-                            arr_out[i + temp_arr_lenth].Add("");
+                        {     
                             while (reader.Read()) //пока не прочли все данные выполняем...
                             {
+                                row = new List<string>();
+                                arr_out.Add(row);
+                                arr_out[i + temp_arr_lenth].Add("");
+                                arr_out[i + temp_arr_lenth].Add("");
+                                arr_out[i + temp_arr_lenth].Add("");
                                 arr_out[i+ temp_arr_lenth][j] = reader.GetString(0).ToString();//добавиои время
                                 arr_out[i+ temp_arr_lenth][j + 1] = reader.GetString(1).ToString();// добавили id ключа
                                 arr_out[i+ temp_arr_lenth][j + 2] = reader.GetString(2).ToString();//добавили id эвента
-                                if ((DEPID == 1) && dep1.ToList().IndexOf(arr_out[i + temp_arr_lenth][2]) != -1) // для департамена ИнфтехУфа
+                                if (DEPID == 1) // для департамена ИнфтехУфа
                                 {
                                     for (int ii = temp_arr_lenth; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
                                     {
@@ -622,14 +636,9 @@ namespace SQL
                                         }
                                     }
                                     i++;
-                                    row = new List<string>();
-                                    arr_out.Add(row);
-                                    arr_out[i + temp_arr_lenth].Add("");
-                                    arr_out[i + temp_arr_lenth].Add("");
-                                    arr_out[i + temp_arr_lenth].Add("");
                                     start_bool = false;
                                 }
-                                if ((DEPID == 42) && dep42.ToList().IndexOf(arr_out[i + temp_arr_lenth][2]) != -1) // для департамена ИнфтехМск
+                                if (DEPID == 42) // для департамена ИнфтехМск
                                 {
                                     for (int ii = temp_arr_lenth; (ii < arr_out.Count - 1) && start_bool == false; ii++)// запуск цикла проверки на существующие запиви
                                     {
@@ -654,11 +663,6 @@ namespace SQL
                                         }
                                     }
                                     i++;
-                                    row = new List<string>();
-                                    arr_out.Add(row);
-                                    arr_out[i + temp_arr_lenth].Add("");
-                                    arr_out[i + temp_arr_lenth].Add("");
-                                    arr_out[i + temp_arr_lenth].Add("");
                                     start_bool = false;
                                 }
                             }
@@ -671,6 +675,57 @@ namespace SQL
                             //fb.Close(); //закрываем соединение, т.к. оно нам больше не нужно
                         }
                         SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
+                    }
+                }
+                for (int f = 0; f < arr_out.Count; f++)
+                {
+                    string temp11 = arr_out[f][1];
+                }
+                    if (DEPID == 42)
+                {
+                    for (int j = 0; j < arr_out.Count; j++)
+                    {
+                        for (int jj = j + 1; jj < arr_out.Count; jj++)
+                        {
+                            bool found = false;
+                            if (arr_out[j][1] == arr_out[jj][1] && (dep42In.ToList().IndexOf(arr_out[jj][2]) == -1) && (dep42In.ToList().IndexOf(arr_out[j][2]) == -1) && DateTime.Parse(arr_out[j][0]).Day == DateTime.Parse(arr_out[jj][0]).Day) 
+                            {
+                                if (DateTime.Parse(arr_out[j][0]) < DateTime.Parse(arr_out[jj][0]))
+                                {
+                                    arr_out[j] = arr_out[jj];
+                                    arr_out.RemoveAt(jj);
+                                    jj = arr_out.Count;
+                                    j = 0;
+                                    found = true;
+                                }
+                                else
+                                {
+                                    arr_out.RemoveAt(jj);
+                                    jj = arr_out.Count;
+                                    j = 0;
+                                    found = true;
+                                }
+                            }
+                            if (!found)
+                            {
+                                if (arr_out[j][1] == arr_out[jj][1] && (dep42Out.ToList().IndexOf(arr_out[jj][2]) == -1) && (dep42Out.ToList().IndexOf(arr_out[j][2]) == -1) && DateTime.Parse(arr_out[j][0]).Day == DateTime.Parse(arr_out[jj][0]).Day)
+                                {
+                                    if (DateTime.Parse(arr_out[j][0]) > DateTime.Parse(arr_out[jj][0]))
+                                    {
+                                        arr_out[j] = arr_out[jj];
+                                        arr_out.RemoveAt(jj);
+                                        jj = arr_out.Count;
+                                        j = 0;
+                                    }
+                                    else
+                                    {
+                                        arr_out.RemoveAt(jj);
+                                        jj = arr_out.Count;
+                                        j = 0;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
