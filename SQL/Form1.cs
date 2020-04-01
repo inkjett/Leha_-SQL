@@ -29,9 +29,10 @@ namespace SQL
         public List<List<string>> arr_of_deviation;
         string date_to_request = "0";
         public bool data_is_read = false;
-        public string path_to_DB = "C:\\123.fdb";
-        public string User = "SYSDBA";
-        public string Pass = "masterkey";
+        public static string IP = "127.0.0.1";
+        public static string pathToDB = "C:\\GUARDE\\db\\guarde.fdb";
+        public static string User = "SYSDBA";
+        public static string Password = "masterkey";
         DateTime now = DateTime.Now;
         TimeSpan infinite = TimeSpan.FromMilliseconds(-1);
         TimeSpan fortyFiveMinut = new TimeSpan(0, 45, 0);
@@ -45,7 +46,8 @@ namespace SQL
         string[] dep1 = new string[2] {"3" ,"13"};
         int DEPID=1;
         TimeSpan dinner; 
-                              
+        
+
         //------
         public Form1()
         {
@@ -53,6 +55,7 @@ namespace SQL
             Program.f1 = this;
             comboBox1.Items.AddRange(new string[] { "ОП ИнфТех", "ИнфТех(МСК)"});
             comboBox1.SelectedIndex=0;
+            OPTsettings.Props.readerXML();
         }
                    
         //методы
@@ -1139,6 +1142,12 @@ namespace SQL
                     break;
             }
             
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Form2 fr2 = new Form2();
+            fr2.Show();
         }
     }
 }

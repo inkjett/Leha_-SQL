@@ -19,9 +19,9 @@ namespace SQL
         Form1 Form_item = new Form1();
         private void button1_Click(object sender, EventArgs e)
         {
-            Form_item.path_to_DB = textBox1.Text;
-            Form_item.User = textBox2.Text;
-            Form_item.path_to_DB = textBox3.Text;            
+            OPTsettings.Props.writteXML();
+            //OPTsettings.Props.readerXML();
         }
+
     }
 }
