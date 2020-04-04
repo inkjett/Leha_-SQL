@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PropsFields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <XMLFileName>C:\Users\Galyamov\Documents\Leha_-SQL\SQL\bin\Debug\steeings.xml</XMLFileName>
-  <IP>127.0.0.1</IP>
-  <pathToDB>C:\GUARDE\db\guarde.fdb</pathToDB>
-  <User>SYSDBA</User>
-  <Password>masterkey</Password>
-</PropsFields>

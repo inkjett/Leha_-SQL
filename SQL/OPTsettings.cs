@@ -7,18 +7,17 @@ using System.IO;
 
 namespace OPTsettings 
 {
-    
     public class PropsFields
-    {
-        public string XMLFileName = Environment.CurrentDirectory + @"\steeings.xml";
-        public string IP = "";
-        public string pathToDB = "";
-        public string User = "";
-        public string Password = "";
+    {        
+        public string IP;
+        public string pathToDB;
+        public string User;
+        public string Password;
     }
-    public partial class Props // класс работы с настройками
+    public class Props // класс работы с настройками
     {
-
+        public static string XMLFileName = Environment.CurrentDirectory + @"\steeings.xml";
+        
         public static PropsFields Fields;
         public Props()
         {
@@ -43,24 +42,23 @@ namespace OPTsettings
             var props = new Props();
             CopyItemsToSer();
             XmlSerializer ser = new XmlSerializer(typeof(PropsFields));
-            TextWriter writer = new StreamWriter(Fields.XMLFileName);
+            TextWriter writer = new StreamWriter(XMLFileName);
             ser.Serialize(writer,Fields);
             writer.Close();
         }
-        public static void  readerXML()
+        public void readerXML()
         {
-            var props = new Props();
-            if (File.Exists(Fields.XMLFileName))
+            if (File.Exists(XMLFileName))
             {
                 XmlSerializer ser = new XmlSerializer(typeof(PropsFields));
-                TextReader reader = new StreamReader(Fields.XMLFileName);
+                TextReader reader = new StreamReader(XMLFileName);
                 Fields = ser.Deserialize(reader) as PropsFields;
                 CopyItemsToProgramm();
+                reader.Close();
             }
             else
             {
-                File.Create(Fields.XMLFileName);
-                writteXML();
+                SQL.MessageHelper.GetInstance().SetMessage("Файл настроек не найден, исползуются стандарные настройки");
             }
 
         }

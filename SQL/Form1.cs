@@ -14,7 +14,6 @@ using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Timers;
 
 namespace SQL
 {
@@ -45,20 +44,31 @@ namespace SQL
         string[] dep42Out = new string[3] { "43", "25", "34" };
         string[] dep1 = new string[2] {"3" ,"13"};
         int DEPID=1;
-        TimeSpan dinner; 
-        
+        TimeSpan dinner;
+        public OPTsettings.Props OTP = new OPTsettings.Props();
+
 
         //------
         public Form1()
         {
+
             InitializeComponent();
+            MessageHelper.GetInstance().MessageGeneratedEventHandler += MessageGenerated;
             Program.f1 = this;
             comboBox1.Items.AddRange(new string[] { "ОП ИнфТех", "ИнфТех(МСК)"});
             comboBox1.SelectedIndex=0;
-            OPTsettings.Props.readerXML();
+            OTP.readerXML();
+           
         }
-                   
+
         //методы
+
+        public void MessageGenerated(object sender, MessageGenerateEventArgs e)
+        {
+            label5.Text = e.Message;
+        }
+
+
         public string method_connection_string (TextBox Text_Path, TextBox Text_user, TextBox Text_pass)
         {
             string path_path = "character set = WIN1251; initial catalog = " + textBox4.Text + ":" + @"" + textBox1.Text + "; user id = " + Text_user.Text + "; password = " + Text_pass.Text + "; ";
