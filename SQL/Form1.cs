@@ -20,7 +20,7 @@ namespace SQL
     public partial class Form1 : Form
     {
         //описание переменных
-        FbConnection fb;
+        public static FbConnection fb;
         public List<List<string>> arr_user;
         List<List<string>> arr_events;
         List<List<string>> arr_events_per_mounth;
@@ -63,7 +63,7 @@ namespace SQL
 
         //методы
 
-        public void MessageGenerated(object sender, MessageGenerateEventArgs e)
+        public void MessageGenerated(object sender, MessageGenerateEventArgs e) // функция генерация сообщений
         {
             label5.Text = e.Message;
         }
@@ -105,20 +105,23 @@ namespace SQL
             try
             {
                 if (fb.State == ConnectionState.Open)
-                {
-                    int i = 0, j = 0;
-
+                {                    
+                    string queryString = "SELECT people.lname||' '||people.fname||' '||people.sname, people.peopleid,cards.cardnum, people.depid FROM cards INNER JOIN people ON(people.peopleid = CARDS.peopleid) where (people.depid != 29) AND (people.depid =" + DEPID + ")";
+                           /*
                     FbTransaction fbt = fb.BeginTransaction();
+
                     FbCommand SelectSQL = new FbCommand("SELECT people.lname||' '||people.fname||' '||people.sname, people.peopleid,cards.cardnum, people.depid FROM cards INNER JOIN people ON(people.peopleid = CARDS.peopleid) where (people.depid != 29) AND (people.depid =" + DEPID+")", fb); //задаем запрос на выборку исключается ид группы 29 и 40
                     SelectSQL.Transaction = fbt;
-                    FbDataReader reader = SelectSQL.ExecuteReader();
+                    FbDataReader reader = SelectSQL.ExecuteReader();*/
 
+                    FbDataReader reader = SQL.DB.ReadData(queryString);
                     List<string> row = new List<string>();
                     Int32 temp = reader.FieldCount;
                     arr_out = new List<List<string>>();
 
                     try
                     {
+                        int i = 0, j = 0;
                         while (reader.Read()) //пока не прочли все данные выполняем... //select_result = select_result + reader.GetInt32(0 ).ToString() + ", " + reader.GetString(1) + "\n";
                         {
                             row = new List<string>();
@@ -133,14 +136,13 @@ namespace SQL
                         }
                     }
                     finally
-                    {
-                        //всегда необходимо вызывать метод Close(), когда чтение данных завершено
-                        reader.Close();
-                        fbt.Dispose();
+                    {                        
+                        reader.Close();//всегда необходимо вызывать метод Close(), когда чтение данных завершено
+                        SQL.DB.CloseFBConnection();
                         data_is_read = true;
                         //fb.Close(); //закрываем соединение, т.к. оно нам больше не нужно
                     }
-                    SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
+                    //SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
                 }
             }
             catch (Exception e)
@@ -159,12 +161,14 @@ namespace SQL
                 if (fb.State == ConnectionState.Open)
                 {
                     int i = 0;
-
+                    /*
                     FbTransaction fbt = fb.BeginTransaction();
                     FbCommand SelectSQL = new FbCommand("SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + date_to_request_in + " 00:00:00' AND events.eventsdate <= '" + date_to_request_in + " 23:59:59'", fb); //задаем запрос на выборку
                     SelectSQL.Transaction = fbt;
                     FbDataReader reader = SelectSQL.ExecuteReader();
-
+                    */
+                    string queryString = "SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + date_to_request_in + " 00:00:00' AND events.eventsdate <= '" + date_to_request_in + " 23:59:59'";
+                    FbDataReader reader = SQL.DB.ReadData(queryString);
                     List<string> row = new List<string>();
                     Int32 temp = reader.FieldCount;
                     arr_out = new List<List<string>>();
@@ -1028,6 +1032,7 @@ namespace SQL
             
             if (radioButton1.Checked)
             {
+
                 connecting_path = method_connection_string(textBox1, textBox2, textBox3);
                 method_connect_to_fb(connecting_path, ref label5);// подключаемся к БД
                 if (date_to_request == "0")//если 0 то берем сегодняшнюю дату

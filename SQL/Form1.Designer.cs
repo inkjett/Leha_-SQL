@@ -120,7 +120,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(494, 3);
+            this.label4.Location = new System.Drawing.Point(265, -2);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(134, 13);
             this.label4.TabIndex = 10;
@@ -130,9 +130,9 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.ForeColor = System.Drawing.Color.Black;
-            this.label5.Location = new System.Drawing.Point(385, 19);
+            this.label5.Location = new System.Drawing.Point(395, 4);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(243, 16);
+            this.label5.Size = new System.Drawing.Size(243, 26);
             this.label5.TabIndex = 11;
             this.label5.Text = "***";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -200,7 +200,7 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(100, 20);
             this.textBox4.TabIndex = 24;
-            this.textBox4.Text = "192.168.21.48";
+            this.textBox4.Text = "127.0.0.1";
             // 
             // label6
             // 

@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DB.cs" />
     <Compile Include="MessageHelper.cs" />
     <Compile Include="Form4.cs">
       <SubType>Form</SubType>
