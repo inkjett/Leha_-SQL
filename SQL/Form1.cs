@@ -138,7 +138,6 @@ namespace SQL
                     finally
                     {                        
                         reader.Close();//всегда необходимо вызывать метод Close(), когда чтение данных завершено
-                        SQL.DB.CloseFBConnection();
                         data_is_read = true;
                         //fb.Close(); //закрываем соединение, т.к. оно нам больше не нужно
                     }
@@ -161,12 +160,6 @@ namespace SQL
                 if (fb.State == ConnectionState.Open)
                 {
                     int i = 0;
-                    /*
-                    FbTransaction fbt = fb.BeginTransaction();
-                    FbCommand SelectSQL = new FbCommand("SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + date_to_request_in + " 00:00:00' AND events.eventsdate <= '" + date_to_request_in + " 23:59:59'", fb); //задаем запрос на выборку
-                    SelectSQL.Transaction = fbt;
-                    FbDataReader reader = SelectSQL.ExecuteReader();
-                    */
                     string queryString = "SELECT DISTINCT events.eventsdate, events.cardnum,events.readerid FROM events WHERE events.eventsdate >= '" + date_to_request_in + " 00:00:00' AND events.eventsdate <= '" + date_to_request_in + " 23:59:59'";
                     FbDataReader reader = SQL.DB.ReadData(queryString);
                     List<string> row = new List<string>();
@@ -302,11 +295,13 @@ namespace SQL
                     finally
                     {
                         //всегда необходимо вызывать метод Close(), когда чтение данных завершено
-                        reader.Close();
-                        fbt.Dispose();
+                        //reader.Close();
+                        //fbt.Dispose();
+
+                        reader.Close();//всегда необходимо вызывать метод Close(), когда чтение данных завершено
                         //fb.Close(); //закрываем соединение, т.к. оно нам больше не нужно
                     }
-                    SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
+                    //SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
                 }
             }
             catch (Exception e)
@@ -534,10 +529,12 @@ namespace SQL
                 {
                     int i = 0, j = 0;
 
-                    FbTransaction fbt = fb.BeginTransaction();
+                    /*FbTransaction fbt = fb.BeginTransaction();
                     FbCommand SelectSQL = new FbCommand("SELECT deviation.peopleid, deviation.devtype, deviation.devfrom,deviation.devto,deviation.deviationid from deviation", fb); //задаем запрос на получение данных
-                    SelectSQL.Transaction = fbt;
-                    FbDataReader reader = SelectSQL.ExecuteReader();
+                    SelectSQL.Transaction = fbt;*/
+                    string connectionString = "SELECT deviation.peopleid, deviation.devtype, deviation.devfrom,deviation.devto,deviation.deviationid from deviation";
+                    FbDataReader reader = SQL.DB.ReadData(connectionString);
+                    
 
                     List<string> row = new List<string>();
                     Int32 temp = reader.FieldCount;
@@ -570,11 +567,11 @@ namespace SQL
                     {
                         //всегда необходимо вызывать метод Close(), когда чтение данных завершено
                         reader.Close();
-                        fbt.Dispose();
+                        //fbt.Dispose();
                         data_is_read = true;
                         //fb.Close(); //закрываем соединение, т.к. оно нам больше не нужно
                     }
-                    SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
+                    //SelectSQL.Dispose();//в документации написано, что ОЧЕНЬ рекомендуется убивать объекты этого типа, если они больше не нужны
                 }
             }
             catch (Exception y)
